@@ -11,12 +11,12 @@
     .title { font-size: 20px; font-weight: 700; fill: #111827; font-family: "Playfair Display", Georgia, serif; }
   </style>
 
-  <text x="30" y="40" class="title">FinBoom · Information Architecture</text>
+  <text x="30" y="40" class="title">Personal Finance Tracker · Information Architecture</text>
   <text x="30" y="60" class="sub">Primary nav (green) · Tools nav (indigo) · Leaf screens (grey)</text>
 
   <!-- Root -->
   <rect x="540" y="90" width="120" height="44" class="node" />
-  <text x="600" y="117" text-anchor="middle" class="lbl">FinBoom app</text>
+  <text x="600" y="117" text-anchor="middle" class="lbl">Personal Finance Tracker app</text>
 
   <!-- Primary sections -->
   <g>

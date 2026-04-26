@@ -2,7 +2,7 @@
 
 Local-first personal finance tracker. Django 6 + PostgreSQL + HTMX + Tailwind CSS.
 
-See the repo root for the canonical product docs (`CLAUDE.md`, `SPEC.md`, `FEATURES.md`, `DECISIONS.md`).
+See the repo root for the canonical product docs (`CLAUDE.md`, `SPEC.md`, `DECISIONS.md`).
 
 ## Prerequisites (one-time)
 

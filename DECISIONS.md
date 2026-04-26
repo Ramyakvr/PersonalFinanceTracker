@@ -12,7 +12,7 @@
 | Styling | Tailwind CSS 3 via standalone CLI | Same utility-class vocabulary as `screenshots/_shell.css`. No Node required — the standalone binary does JIT. |
 | Database | PostgreSQL 14+ (localhost) | Native `JSONB` for `breakdownJson` / `percentByClass` / `templateJson`. Exact `NUMERIC(20,4)` for money. User already has 14.18 via Homebrew. |
 | ORM | Django ORM | Schema in `SPEC.md §4` maps 1:1. |
-| Charts | Chart.js 4 via CDN | Covers every viz in `FEATURES.md §4` (donut, line, bar). No build step. |
+| Charts | Chart.js 4 via CDN | Covers every viz the dashboard needs (donut, line, bar). No build step. |
 | Forms | Django Forms + `django-crispy-forms` + `crispy-tailwind` | Server-validated; Tailwind-rendered fields. |
 | Money | `DecimalField(max_digits=20, decimal_places=4)` in every money column | Python `Decimal` is exact. Never use `float`. `core/money.py` is the only path for cross-currency arithmetic. |
 | Dates | `datetime` stdlib + `zoneinfo` | No third-party date library needed. |
@@ -24,10 +24,10 @@
 | Packaging | None for Phase 0. PWA manifest + service worker in Phase 7. | Matches user's answer. |
 | Monorepo tooling | None — single Django project in `app/`. | Lowest-complexity shape that fits. |
 
-## Resolutions of open questions from `FEATURES.md §7`
+## Resolutions of open questions
 
-These will accumulate as later phases hit the ambiguities. Phase 0 adds none.
+Pragmatic calls made on ambiguous requirements get appended here as one-liners.
 
 ## Ambiguity policy
 
-When a requirement is ambiguous during a phase, first check `FEATURES.md §7 Open Questions`. If it's listed there, we make a pragmatic call and append a one-liner to this file. If it isn't, we ask the user before coding.
+When a requirement is ambiguous during a phase, ask the user before coding. Append a one-liner to this file documenting any non-obvious decision.

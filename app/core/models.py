@@ -158,7 +158,7 @@ class Geography(models.TextChoices):
 
 
 class Asset(models.Model):
-    """A single holding. See FEATURES.md §3.2 for the per-subtype field variants."""
+    """A single holding. Per-subtype field variants are documented in `core/subtypes.py`."""
 
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="assets")
     category = models.CharField(max_length=20, choices=AssetCategory.choices)

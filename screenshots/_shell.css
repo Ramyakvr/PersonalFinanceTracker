@@ -1,4 +1,4 @@
-/* Shared styles for the FinBoom wireframe set.
+/* Shared styles for the Personal Finance Tracker wireframe set.
    Each wireframe HTML file links this stylesheet with: <link rel="stylesheet" href="_shell.css">
 */
 :root {
@@ -7,7 +7,7 @@
   --ink: #1f2937;
   --muted: #6b7280;
   --rule: #e5e7eb;
-  --accent: #15803d;          /* FinBoom-ish green */
+  --accent: #15803d;          /* brand green */
   --accent-soft: #dcfce7;
   --warn: #b45309;
   --chip: #f3f4f6;

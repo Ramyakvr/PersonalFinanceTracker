@@ -1,6 +1,6 @@
 """Asset subtype registry.
 
-Source: FEATURES.md §3.2. Each subtype key is stored on `Asset.subtype` (free-form string).
+Each subtype key is stored on `Asset.subtype` (free-form string).
 The registry drives:
 - the subtype select on the asset form, filtered by category,
 - the human-readable label on list pages,

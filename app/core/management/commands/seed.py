@@ -17,7 +17,7 @@ from core.models import (
     User,
 )
 
-# From FEATURES.md §3.6. Investment and Credit Card Payment are default-exempt.
+# Investment and Credit Card Payment are default-exempt.
 DEFAULT_EXPENSE_CATEGORIES = [
     ("Housing & Rent", False),
     ("Food & Dining", False),
@@ -42,7 +42,6 @@ DEFAULT_EXPENSE_CATEGORIES = [
     ("Other Expense", False),
 ]
 
-# From FEATURES.md §3.7.
 DEFAULT_INCOME_CATEGORIES = [
     "Salary",
     "Freelance",
@@ -56,7 +55,7 @@ DEFAULT_INCOME_CATEGORIES = [
     "Other Income",
 ]
 
-# From FEATURES.md §3.5. Remaining 5% goes to Real Estate.
+# Default allocation: 55/20/10/10 to equity/debt/gold/alternatives, remaining 5% to Real Estate.
 DEFAULT_ALLOCATION_PERCENTS = {
     "EQUITY": 55,
     "BONDS_DEBT": 20,

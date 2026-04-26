@@ -1,7 +1,7 @@
 # PersonalFinanceTracker — Build Spec
 
-> A buildable, opinionated spec for a **local-first** clone/rework of FinBoom, to be implemented with Claude Code.
-> Companion to `FEATURES.md`. Nothing here is copied from FinBoom copy; product decisions intentionally diverge where local-first hosting makes a different choice obvious.
+> A buildable, opinionated spec for a **local-first** personal finance tracker, implemented with Claude Code.
+> All UI copy is written from scratch; no third-party app text is reproduced verbatim.
 
 ---
 
@@ -22,10 +22,10 @@ A single-user (optionally multi-profile) **wealth & money tracker** that runs en
 
 ## 2. Prioritized Feature List
 
-### MVP (v1) — the minimum to replace FinBoom for one user
+### MVP (v1) — the minimum to ship a usable single-user tracker
 
 - Auth: single local user with optional 4-digit app-lock PIN (no cloud auth).
-- Assets CRUD with the full 8-category taxonomy (Stocks & Equity, Gold & Silver, Bonds & Debt, Real Estate, Retirement, Cash & Savings, Alternatives, Other) and the subtypes in FEATURES.md §3.2.
+- Assets CRUD with the full 8-category taxonomy (Stocks & Equity, Gold & Silver, Bonds & Debt, Real Estate, Retirement, Cash & Savings, Alternatives, Other) and per-category subtypes (see `core/subtypes.py`).
 - Liabilities CRUD with the 9-category taxonomy.
 - Transactions CRUD (expenses & income) with row-based multi-entry, categories, tags, notes, recurring toggle.
 - Tags, custom categories, exempt categories.
@@ -33,7 +33,7 @@ A single-user (optionally multi-profile) **wealth & money tracker** that runs en
 - Asset Allocation donut: actual vs target (editable target preset). Monthly SIP plan calculation.
 - Goals: create, target amount/date, link to asset classes or specific assets; progress & projection.
 - Essentials health score: Emergency Fund (months covered), Savings Rate, Term Cover adequacy, Health Cover adequacy.
-- Dashboard with all KPI widgets from FEATURES.md §3.1.
+- Dashboard with KPI widgets: net worth, total assets, total liabilities, invested, financial health score, asset allocation donut, cashflow mini-chart, top holdings, insights, goals progress.
 - Import: generic CSV (Assets, Liabilities, Transactions) with Append / Update-by-Name modes.
 - Export: JSON full dump + CSV per table.
 - Multi-currency: store per-row currency + base currency; FX rates via a local cache refreshed on demand (manual + scheduled).
