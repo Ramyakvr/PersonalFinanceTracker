@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Import · Tools{% endblock %}
+
+{% block content %}
+<div class="space-y-5 max-w-4xl">
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">Import</h1>
+    <p class="text-slate-500 mt-1">Bring in existing data from CSVs.</p>
+  </header>
+
+  {% include "wealth/_messages.html" %}
+
+  <div class="flex items-center gap-2 text-sm flex-wrap">
+    <a href="{% url 'import_view' %}?scope=assets"
+       class="rounded-full px-3 py-1 border {% if scope == 'assets' %}bg-emerald-700 text-white border-emerald-700{% else %}bg-white border-slate-300 text-slate-700 hover:bg-slate-50{% endif %}">Assets</a>
+    <a href="{% url 'import_view' %}?scope=transactions"
+       class="rounded-full px-3 py-1 border {% if scope == 'transactions' %}bg-emerald-700 text-white border-emerald-700{% else %}bg-white border-slate-300 text-slate-700 hover:bg-slate-50{% endif %}">Income &amp; Expenses</a>
+    <a href="{% url 'import_view' %}?scope=broker"
+       class="rounded-full px-3 py-1 border {% if scope == 'broker' %}bg-emerald-700 text-white border-emerald-700{% else %}bg-white border-slate-300 text-slate-700 hover:bg-slate-50{% endif %}">Broker statements</a>
+  </div>
+
+  {% if scope == 'broker' %}
+    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
+      <h2 class="text-sm font-semibold text-slate-700">Upload broker statement</h2>
+      <p class="text-xs text-slate-500">
+        Zerodha and Aionion ship tradebook and dividends as two separate XLSX files.
+        Chola ships a single PDF with trades, dividends, and corporate actions
+        interleaved. You can select <strong>multiple files</strong> per slot
+        (e.g. several periods of Aionion equity-trade exports) — each is
+        imported in turn. Re-uploading the same file is a no-op.
+      </p>
+      <p class="text-xs text-slate-500">
+        The demat account label is <strong>auto-detected</strong> from the
+        file's preamble (broker client ID). Multiple files belonging to
+        different accounts of the same broker can be uploaded together —
+        each one is routed to the matching account.
+      </p>
+
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="scope" value="broker">
+
+        <div>
+          <label class="block max-w-sm">
+            <span class="text-xs uppercase tracking-wide text-slate-500">Broker</span>
+            {{ broker_form.broker }}
+            {% if broker_form.broker.errors %}<p class="text-xs text-rose-600 mt-1">{{ broker_form.broker.errors|join:", " }}</p>{% endif %}
+          </label>
+        </div>
+
+        <div class="rounded-md border-2 border-dashed border-slate-200 p-5 space-y-3">
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Tradebook / statement file</label>
+            {{ broker_form.tradebook }}
+            <ul class="text-xs text-slate-500 mt-1 space-y-0.5 list-disc pl-5">
+              <li><strong>Zerodha</strong> — tradebook XLSX, e.g. <code>tradebook-&lt;client&gt;-EQ.xlsx</code> (download from Console → Reports → Tradebook).</li>
+              <li><strong>Aionion</strong> — equity trades XLSX, e.g. <code>Equity_Trades_&lt;period&gt;.xlsx</code>.</li>
+              <li><strong>Chola</strong> — full statement PDF, e.g. <code>TransactionReport.pdf</code> (contains trades, dividends, and corporate actions).</li>
+            </ul>
+          </div>
+          <div>
+            <label class="text-xs uppercase tracking-wide text-slate-500">Dividends file</label>
+            {{ broker_form.dividends }}
+            <ul class="text-xs text-slate-500 mt-1 space-y-0.5 list-disc pl-5">
+              <li><strong>Zerodha</strong> — dividends XLSX (Console → Reports → P&amp;L → Dividends).</li>
+              <li><strong>Aionion</strong> — dividend audit XLSX, e.g. <code>Dividend_Income_Audit_&lt;client&gt;_&lt;period&gt;.xlsx</code>.</li>
+              <li><strong>Chola</strong> — leave blank; dividends are inside the same PDF above.</li>
+            </ul>
+          </div>
+          {% if broker_form.non_field_errors %}
+            <p class="text-xs text-rose-600">{{ broker_form.non_field_errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <button class="rounded-md bg-emerald-700 text-white px-4 py-2 text-sm hover:bg-emerald-800">
+            Upload &amp; Commit
+          </button>
+          <a href="{% url 'investments_list' %}" class="ml-3 text-sm text-slate-500 underline">Go to Investments →</a>
+        </div>
+      </form>
+    </section>
+  {% else %}
+    <section class="rounded-lg border border-slate-200 bg-white p-5 space-y-4">
+      <h2 class="text-sm font-semibold text-slate-700">Upload CSV</h2>
+
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="scope" value="{{ scope }}">
+
+        <div class="flex items-center gap-6 text-sm">
+          <label class="flex items-center gap-2">
+            <input type="radio" name="mode" value="append" {% if mode == 'append' %}checked{% endif %}>
+            <span>Append</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="mode" value="update_by_name" {% if mode == 'update_by_name' %}checked{% endif %}>
+            <span>Update by Name</span>
+          </label>
+        </div>
+
+        <div class="rounded-md border-2 border-dashed border-slate-200 p-6">
+          {{ form.file }}
+          {% if form.file.errors %}<p class="text-xs text-rose-600 mt-2">{{ form.file.errors|join:", " }}</p>{% endif %}
+          <p class="text-xs text-slate-500 mt-2">
+            {% if scope == 'assets' %}
+              Required columns: <code>name, category, subtype, currency, current_value</code>.
+              Optional: <code>cost_basis, quantity, notes, exclude_from_allocation</code>.
+            {% else %}
+              Required columns: <code>date, type, category, description, amount, currency</code>.
+              Optional: <code>notes, is_recurring</code>. Date as <code>YYYY-MM-DD</code>.
+            {% endif %}
+          </p>
+        </div>
+
+        <div>
+          <button class="rounded-md bg-emerald-700 text-white px-4 py-2 text-sm hover:bg-emerald-800">
+            Upload &amp; Commit
+          </button>
+        </div>
+      </form>
+    </section>
+  {% endif %}
+
+  <section class="rounded-lg border border-slate-200 bg-white p-5">
+    <h2 class="text-sm font-semibold text-slate-700 mb-3">Recent imports</h2>
+    {% if not jobs %}
+      <p class="text-sm text-slate-500">No imports yet.</p>
+    {% else %}
+      <table class="w-full text-sm">
+        <thead class="text-left text-xs uppercase tracking-wide text-slate-500 border-b border-slate-200">
+          <tr><th class="py-2">When</th><th>Scope</th><th>Mode</th><th>File</th><th>Rows</th><th>Status</th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for j in jobs %}
+            <tr>
+              <td class="py-2 text-slate-500">{{ j.created_at|date:"d M Y H:i" }}</td>
+              <td>{{ j.scope }}</td>
+              <td>{{ j.mode }}</td>
+              <td class="truncate max-w-[16rem]">{{ j.filename }}</td>
+              <td>{{ j.rows_imported|intcomma }}</td>
+              <td>
+                <span class="rounded-full px-2 py-0.5 text-xs {% if j.status == 'ok' %}bg-emerald-100 text-emerald-800{% else %}bg-rose-100 text-rose-800{% endif %}">
+                  {{ j.status }}
+                </span>
+              </td>
+            </tr>
+            {% if j.log %}
+              <tr><td colspan="6" class="pb-2 text-xs text-slate-400 whitespace-pre-wrap">{{ j.log|truncatechars:400 }}</td></tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

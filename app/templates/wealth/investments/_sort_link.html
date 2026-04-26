@@ -1,0 +1,16 @@
+{% comment %}Sortable column header.
+Inputs:
+  key       — sort key for this column
+  label     — visible header text
+  qs_extra  — pre-encoded querystring fragment carrying current filters (no leading '?')
+Reads `sort` and `sort_dir` from the parent context to render the active arrow.
+{% endcomment %}{% spaceless %}
+<a href="?sort={{ key }}&dir={% if sort == key and sort_dir == 'asc' %}desc{% else %}asc{% endif %}{% if qs_extra %}&{{ qs_extra }}{% endif %}"
+   class="inline-flex items-center gap-1 hover:text-slate-700">
+  <span>{{ label }}</span>
+  <span class="inline-flex flex-col leading-none text-[8px]" aria-hidden="true">
+    <span class="{% if sort == key and sort_dir == 'asc' %}text-slate-900 font-bold{% else %}text-slate-300{% endif %}">▲</span>
+    <span class="{% if sort == key and sort_dir == 'desc' %}text-slate-900 font-bold{% else %}text-slate-300{% endif %}">▼</span>
+  </span>
+</a>
+{% endspaceless %}

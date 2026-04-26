@@ -1,0 +1,25 @@
+{% comment %}One category row. Expects `category` (a Category model instance).{% endcomment %}
+<div class="flex items-center gap-3 py-2 text-sm">
+  <div class="flex-1">
+    <span class="font-medium">{{ category.name }}</span>
+    {% if category.is_custom %}
+      <span class="ml-2 text-[10px] uppercase tracking-wider text-slate-400">custom</span>
+    {% endif %}
+    {% if category.is_exempt %}
+      <span class="ml-2 text-[10px] uppercase tracking-wider text-amber-700">exempt</span>
+    {% endif %}
+  </div>
+  <form method="post" action="{% url 'category_toggle_exempt' category.id %}">
+    {% csrf_token %}
+    <button type="submit" class="text-xs text-slate-600 hover:text-slate-900 underline">
+      {% if category.is_exempt %}Include in totals{% else %}Exclude from totals{% endif %}
+    </button>
+  </form>
+  {% if category.is_custom %}
+    <form method="post" action="{% url 'category_delete' category.id %}"
+          onsubmit="return confirm('Delete category {{ category.name|escapejs }}?');">
+      {% csrf_token %}
+      <button type="submit" class="text-xs text-rose-700 hover:text-rose-900 underline">Delete</button>
+    </form>
+  {% endif %}
+</div>

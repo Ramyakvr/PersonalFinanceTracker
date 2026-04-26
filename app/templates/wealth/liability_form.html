@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}Edit {{ instance.name }}{% else %}Add Liability{% endif %} &middot; Personal Finance{% endblock %}
+
+{% block content %}
+<div class="space-y-5 max-w-3xl">
+  <div class="text-xs text-slate-500">
+    <a href="{% url 'liability_list' %}" class="hover:underline">&larr; Back to Liabilities</a>
+  </div>
+
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">
+      {% if is_edit %}Edit liability{% else %}Add Liability{% endif %}
+    </h1>
+    <p class="text-sm text-slate-500 mt-1">
+      <span class="font-medium">{{ category_label }}</span>
+      {% if not is_edit %}&middot; <a href="{% url 'liability_new' %}" class="underline">change category</a>{% endif %}
+    </p>
+  </header>
+
+  {% include "wealth/_messages.html" %}
+
+  <form method="post" class="space-y-6 rounded-lg border border-slate-200 bg-white p-6">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <input type="hidden" name="category" value="{{ category }}">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {% include "wealth/_field.html" with field=form.name label="Name *" %}
+      {% include "wealth/_field.html" with field=form.currency label="Currency" %}
+      {% include "wealth/_field.html" with field=form.outstanding_amount label="Outstanding Amount *" %}
+      {% include "wealth/_field.html" with field=form.interest_rate label="Interest Rate (%)" %}
+      {% include "wealth/_field.html" with field=form.monthly_emi label="Monthly EMI" %}
+      {% include "wealth/_field.html" with field=form.start_date label="Start Date" %}
+    </div>
+
+    <details class="border-t border-slate-200 pt-4">
+      <summary class="cursor-pointer text-sm font-medium text-emerald-700">
+        + Add details (tags, notes)
+      </summary>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        {% include "wealth/_field.html" with field=form.tags_raw label="Tags" %}
+        <div class="sm:col-span-2">
+          {% include "wealth/_field.html" with field=form.notes label="Notes" %}
+        </div>
+      </div>
+    </details>
+
+    <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-200">
+      <button type="submit"
+              class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+        Save
+      </button>
+      {% if not is_edit %}
+        <button type="submit" name="action" value="save_and_add"
+                class="rounded border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100">
+          Save &amp; Add another
+        </button>
+      {% endif %}
+      <a href="{% url 'liability_list' %}" class="rounded border border-transparent px-4 py-2 text-sm text-slate-600 hover:text-slate-800">
+        Cancel
+      </a>
+
+      {% if is_edit %}
+        <div class="flex-1"></div>
+        <form method="post" action="{% url 'liability_delete' instance.id %}"
+              onsubmit="return confirm('Delete {{ instance.name|escapejs }}? This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="rounded border border-rose-300 px-4 py-2 text-sm text-rose-700 hover:bg-rose-50">
+            Delete
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

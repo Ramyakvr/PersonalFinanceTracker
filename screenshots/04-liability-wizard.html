@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>04 — Add Liability wizard</title><link rel="stylesheet" href="_shell.css"></head><body>
+<div class="note"><b>04 — Wealth / Add Liability</b><br>Same wizard as asset, Liability segment. All 9 subtypes share the identical 6-field form.</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FinBoom</div>
+    <div class="nav-item">⬚ Overview</div>
+    <div class="nav-item active">↗ Wealth</div>
+    <div class="nav-item">💳 Money</div>
+    <div class="nav-item">◎ Essentials</div>
+    <div class="nav-section">Tools</div>
+    <div class="nav-item">↥ Import</div>
+    <div class="nav-item">⚙ Settings</div>
+  </aside>
+  <main class="main">
+    <div style="color:var(--muted); font-size:12px; margin-bottom:6px;">← Back to Liabilities</div>
+    <h1 class="page-title">Add Liability</h1>
+    <p class="page-sub">Track what you owe</p>
+
+    <div style="display:inline-flex; background:var(--chip); border-radius:999px; padding:4px; margin-bottom:18px;">
+      <span class="chip">Asset</span><span class="chip active">Liability</span>
+    </div>
+
+    <h3 style="margin:18px 0 10px;">Step 1 · Choose a category</h3>
+    <div class="grid-cells" style="margin-bottom:18px;">
+      <div class="cat">Home Loan</div>
+      <div class="cat">Vehicle Loan</div>
+      <div class="cat">Personal Loan</div>
+      <div class="cat">Education Loan</div>
+      <div class="cat">Credit Card</div>
+      <div class="cat">Gold Loan</div>
+      <div class="cat">Business Loan</div>
+      <div class="cat">Friends / Family</div>
+      <div class="cat">Other</div>
+    </div>
+
+    <h3 style="margin:18px 0 10px;">Step 2 · <span class="pill">Home Loan</span> details</h3>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field"><label>Name *</label><input placeholder="e.g. Home Loan — SBI"></div>
+        <div class="field"><label>Currency</label><select><option>₹ INR</option><option>$ USD</option></select></div>
+        <div class="field"><label>Outstanding Amount *</label><input placeholder="0"></div>
+        <div class="field"><label>Interest Rate (%)</label><input placeholder="e.g. 8.5"></div>
+        <div class="field"><label>Monthly EMI</label><input placeholder="0"></div>
+        <div class="field"><label>Start Date</label><input type="date"></div>
+      </div>
+
+      <details style="margin-top: 16px;">
+        <summary style="cursor:pointer; color:var(--accent); font-weight:600;">+ Add details (Tags, Notes, Exclude)</summary>
+      </details>
+
+      <div style="margin-top:18px; display:flex; gap:8px;">
+        <span class="btn primary">Save</span>
+        <span class="btn">Save &amp; Add another</span>
+        <span class="btn ghost">Cancel</span>
+      </div>
+    </div>
+  </main>
+</div>
+</body></html>

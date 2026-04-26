@@ -1,0 +1,15 @@
+{% comment %}Money section tabs. `active` should be one of: expenses, income, insights.{% endcomment %}
+<div class="flex gap-6 border-b border-slate-200 mb-6">
+  <a href="{% url 'transaction_list' 'expenses' %}"
+     class="pb-2 text-sm font-medium {% if active == 'expenses' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Expenses
+  </a>
+  <a href="{% url 'transaction_list' 'income' %}"
+     class="pb-2 text-sm font-medium {% if active == 'income' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Income
+  </a>
+  <a href="{% url 'insights' %}"
+     class="pb-2 text-sm font-medium {% if active == 'insights' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Insights
+  </a>
+</div>

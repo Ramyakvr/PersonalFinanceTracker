@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Preferences &middot; Settings &middot; Personal Finance{% endblock %}
+
+{% block content %}
+<div class="space-y-5 max-w-5xl">
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">Settings</h1>
+    <p class="text-sm text-slate-500 mt-1">Account, preferences &amp; privacy.</p>
+  </header>
+
+  {% include "wealth/_messages.html" %}
+
+  <div class="grid grid-cols-[14rem_1fr] gap-6">
+    {% include "settings/_nav.html" with active_settings="preferences" %}
+
+    <div class="space-y-5 min-w-0">
+      <section class="rounded-lg border border-slate-200 bg-white p-5">
+        <h2 class="text-sm uppercase tracking-wider text-slate-500 mb-3">Base display currency</h2>
+        <form method="post" class="flex items-center gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="set_base_currency">
+          <select name="base_currency" class="rounded border border-slate-300 px-3 py-2 text-sm">
+            {% for ccy in currency_choices %}
+              <option value="{{ ccy }}" {% if ccy == base_currency %}selected{% endif %}>{{ ccy }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+            Save
+          </button>
+        </form>
+        <p class="text-xs text-slate-500 mt-2">
+          Asset and transaction totals render in this currency. Phase 4 adds FX conversion for mixed-currency rows.
+        </p>
+      </section>
+
+      <section class="rounded-lg border border-slate-200 bg-white p-5">
+        <h2 class="text-sm uppercase tracking-wider text-slate-500 mb-3">Add a custom category</h2>
+        <form method="post" action="{% url 'category_create' %}" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          {% csrf_token %}
+          <div>{{ add_form.type }}</div>
+          <div class="sm:col-span-2">{{ add_form.name }}</div>
+          <div class="flex items-center gap-2 text-sm">
+            {{ add_form.is_exempt }}
+            <label for="id_is_exempt">Exempt from totals</label>
+          </div>
+          <div class="sm:col-span-4">
+            <button type="submit" class="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+              Add category
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="rounded-lg border border-slate-200 bg-white p-5">
+        <h2 class="text-sm uppercase tracking-wider text-slate-500 mb-3">Expense categories</h2>
+        <div class="divide-y divide-slate-100">
+          {% for c in expense_categories %}
+            {% include "settings/_category_row.html" with category=c %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="rounded-lg border border-slate-200 bg-white p-5">
+        <h2 class="text-sm uppercase tracking-wider text-slate-500 mb-3">Income categories</h2>
+        <div class="divide-y divide-slate-100">
+          {% for c in income_categories %}
+            {% include "settings/_category_row.html" with category=c %}
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Insights &middot; Personal Finance{% endblock %}
+
+{% block content %}
+<div class="space-y-4 max-w-3xl">
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">Money</h1>
+    <p class="text-sm text-slate-500 mt-1">Trends, breakdowns, and cashflow over time.</p>
+  </header>
+
+  {% include "money/_tabs.html" with active="insights" %}
+
+  <div class="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">
+    <div class="text-lg font-medium">Insights land in Phase 4</div>
+    <p class="text-sm text-slate-500 mt-2">
+      Cashflow trend, top spend categories, savings rate, and recurring-cost audit will show up here
+      once the dashboard and FX conversion are in.
+    </p>
+  </div>
+</div>
+{% endblock %}

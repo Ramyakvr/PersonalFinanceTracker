@@ -1,0 +1,29 @@
+{% comment %}Settings left-rail nav. `active_settings` is one of:
+preferences, account, app_lock, data, recurring, billing.{% endcomment %}
+<nav class="rounded-lg border border-slate-200 bg-white p-2 text-sm space-y-0.5">
+  <a href="{% url 'settings_account' %}"
+     class="block rounded-md px-3 py-2 {% if active_settings == 'account' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+    Account
+  </a>
+  <a href="{% url 'preferences' %}"
+     class="block rounded-md px-3 py-2 {% if active_settings == 'preferences' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+    Preferences
+  </a>
+  <a href="{% url 'pin_set' %}"
+     class="block rounded-md px-3 py-2 {% if active_settings == 'app_lock' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+    App Lock PIN
+  </a>
+  <a href="{% url 'settings_recurring' %}"
+     class="block rounded-md px-3 py-2 {% if active_settings == 'recurring' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+    Recurring
+  </a>
+  <a href="{% url 'settings_data' %}"
+     class="block rounded-md px-3 py-2 {% if active_settings == 'data' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+    Data
+  </a>
+  <a href="{% url 'settings_billing' %}"
+     class="block rounded-md px-3 py-2 {% if active_settings == 'billing' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+    Plan &amp; Billing
+  </a>
+  <span class="block rounded-md px-3 py-2 text-slate-400 cursor-not-allowed">Profiles <span class="ml-1 text-[10px]">v2</span></span>
+</nav>

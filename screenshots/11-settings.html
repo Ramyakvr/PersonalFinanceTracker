@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>11 — Settings</title><link rel="stylesheet" href="_shell.css"></head><body>
+<div class="note"><b>11 — Settings</b><br>Route: <code>/settings</code><br>Left rail: Account · Preferences · Recurring · Profiles · Shared Access · Data · Plan &amp; Billing.</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FinBoom</div>
+    <div class="nav-item">⬚ Overview</div>
+    <div class="nav-item">↗ Wealth</div>
+    <div class="nav-item">💳 Money</div>
+    <div class="nav-item">◎ Essentials</div>
+    <div class="nav-section">Tools</div>
+    <div class="nav-item">↥ Import</div>
+    <div class="nav-item active">⚙ Settings</div>
+  </aside>
+  <main class="main">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-sub">Account, preferences &amp; privacy</p>
+
+    <div style="display:grid; grid-template-columns: 220px 1fr; gap: 24px;">
+      <div class="card" style="padding:8px;">
+        <div class="nav-item active">Account</div>
+        <div class="nav-item">Preferences</div>
+        <div class="nav-item">Recurring</div>
+        <div class="nav-item">Profiles <span class="pill">v2</span></div>
+        <div class="nav-item">Shared Access <span class="pill">v3</span></div>
+        <div class="nav-item">Data</div>
+        <div class="nav-item">Plan &amp; Billing</div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3>Profile</h3>
+          <div class="form-grid">
+            <div class="field"><label>Display Name</label><input value="Demo User"></div>
+            <div class="field"><label>Email</label><input value="demo@example.com" disabled><div style="font-size:11px;color:var(--muted);margin-top:4px;">Email cannot be changed</div></div>
+          </div>
+          <div style="margin-top:14px;"><span class="btn primary">Save</span></div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3>Set Password</h3>
+          <div style="font-size:13px; color:var(--muted);">Set a password so you can sign in with email + password in addition to Google.</div>
+        </div>
+        <div class="card">
+          <h3>🔒 App Lock</h3>
+          <div style="font-size:13px; color:var(--muted);">Require a 4-digit PIN to open the app. Locks automatically after 1 minute in background.</div>
+          <div style="margin-top:12px;"><span class="btn primary">🔒 Set Up PIN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;"><b>Preferences tab</b> includes: Base Display Currency · Exempt Expense Categories (toggle per category; Investment &amp; Credit Card Payment are default-exempt) · Exempt Income Categories · Custom Categories (add/edit/remove).</div>
+    <div class="callout"><b>Data tab</b> includes: Export all (JSON) · Export per table (CSV) · Import all · Wipe local data.</div>
+  </main>
+</div>
+</body></html>

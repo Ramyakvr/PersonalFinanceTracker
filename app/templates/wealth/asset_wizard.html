@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Add Asset &middot; Personal Finance{% endblock %}
+
+{% block content %}
+<div class="space-y-5 max-w-4xl">
+  <div class="text-xs text-slate-500">
+    <a href="{% url 'asset_list' %}" class="hover:underline">&larr; Back to Assets</a>
+  </div>
+
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">Add Asset</h1>
+    <p class="text-sm text-slate-500 mt-1">Track what you own.</p>
+  </header>
+
+  {% include "wealth/_messages.html" %}
+
+  <div class="inline-flex rounded-full bg-slate-100 p-1 text-sm">
+    <span class="rounded-full px-4 py-1 bg-slate-900 text-white font-medium">Asset</span>
+    <a href="{% url 'liability_new' %}" class="rounded-full px-4 py-1 text-slate-700 hover:text-slate-900">Liability</a>
+  </div>
+
+  <section class="space-y-3">
+    <h3 class="text-sm uppercase tracking-wider text-slate-500">Step 1 &middot; Choose a category</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {% for key, label, hint in categories %}
+        <a href="?category={{ key }}"
+           class="block rounded-lg border border-slate-200 bg-white p-4 text-center hover:border-emerald-500 hover:shadow-sm transition">
+          <div class="font-semibold text-sm">{{ label }}</div>
+          <div class="text-[11px] text-slate-500 mt-1">{{ hint }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="en" data-theme="{{ request.user.theme|default:'light' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Personal Finance{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/tailwind.out.css' %}">
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.3/dist/cdn.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <div class="flex min-h-screen">
+    {% if request.user.is_authenticated %}
+    <aside class="w-56 shrink-0 border-r border-slate-200 bg-white px-3 py-4">
+      <div class="px-2 pb-4 text-xl font-semibold tracking-tight">Finance</div>
+      <nav class="flex flex-col gap-0.5 text-sm">
+        {% with current=request.path %}
+          <a href="{% url 'hello' %}"
+             class="rounded-md px-3 py-2 {% if current == '/' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+            Overview
+          </a>
+          <a href="{% url 'asset_list' %}"
+             class="rounded-md px-3 py-2 {% if '/wealth/' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+            Wealth
+          </a>
+          <a href="{% url 'transaction_list' 'expenses' %}"
+             class="rounded-md px-3 py-2 {% if '/money/' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+            Money
+          </a>
+          <a href="{% url 'essentials' %}"
+             class="rounded-md px-3 py-2 {% if '/essentials/' in current or '/goals/' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+            Essentials
+          </a>
+        {% endwith %}
+        <div class="px-3 pt-5 pb-1 text-[10px] uppercase tracking-widest text-slate-400">Tools</div>
+        <a href="{% url 'import_view' %}"
+           class="rounded-md px-3 py-2 {% if '/import' in request.path %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+          Import
+        </a>
+        <a href="{% url 'settings_account' %}"
+           class="rounded-md px-3 py-2 {% if '/settings/' in request.path %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+          Settings
+        </a>
+        <a href="{% url 'pin_set' %}"
+           class="rounded-md px-3 py-2 {% if '/auth/' in request.path %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+          App Lock PIN
+        </a>
+        <a href="/admin/" class="rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100">Admin</a>
+      </nav>
+    </aside>
+    {% endif %}
+
+    <main class="flex-1 min-w-0 {% if request.user.is_authenticated %}px-8 py-6{% else %}mx-auto max-w-5xl p-8{% endif %}">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

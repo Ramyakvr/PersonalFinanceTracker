@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>06 — Net Worth / Snapshots</title><link rel="stylesheet" href="_shell.css"></head><body>
+<div class="note"><b>06 — Wealth / Net Worth</b><br>Route: <code>/snapshots</code><br>Time-series line chart driven by snapshots. Toggle between Net Worth / Assets / Liabilities. "Take New Snapshot" button.</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FinBoom</div>
+    <div class="nav-item">⬚ Overview</div>
+    <div class="nav-item active">↗ Wealth</div>
+    <div class="nav-item">💳 Money</div>
+    <div class="nav-item">◎ Essentials</div>
+    <div class="nav-section">Tools</div>
+    <div class="nav-item">↥ Import</div>
+    <div class="nav-item">⚙ Settings</div>
+  </aside>
+  <main class="main">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div><h1 class="page-title">Net Worth</h1><p class="page-sub">12 snapshots</p></div>
+      <span class="btn primary">＋ Take New Snapshot</span>
+    </div>
+    <div class="tabs">
+      <div class="tab">Assets</div><div class="tab">Liabilities</div><div class="tab active">Net Worth</div><div class="tab">Allocation</div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; gap:6px; margin-bottom:12px;">
+        <span class="chip active">Net Worth</span><span class="chip">Assets</span><span class="chip">Liabilities</span>
+        <span style="flex:1"></span>
+        <span class="chip">1M</span><span class="chip active">6M</span><span class="chip">1Y</span><span class="chip">All</span>
+        <span class="chip">👁 Show</span>
+      </div>
+      <svg viewBox="0 0 600 200" width="100%" height="200" style="border:1px dashed var(--rule); border-radius:8px; background:var(--grid);">
+        <polyline fill="none" stroke="#15803d" stroke-width="2.5"
+          points="0,170 60,165 120,150 180,142 240,132 300,125 360,118 420,105 480,95 540,88 600,80" />
+        <g fill="#15803d">
+          <circle cx="60" cy="165" r="3"/><circle cx="180" cy="142" r="3"/><circle cx="300" cy="125" r="3"/>
+          <circle cx="420" cy="105" r="3"/><circle cx="540" cy="88" r="3"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="card" style="margin-top:16px; padding:0;">
+      <table class="table">
+        <tr><th>Taken</th><th>Source</th><th style="text-align:right">Net Worth</th><th style="text-align:right">Assets</th><th style="text-align:right">Liabilities</th><th></th></tr>
+        <tr><td>2026-04-18</td><td>manual</td><td style="text-align:right">₹ 12,45,000</td><td style="text-align:right">₹ 15,10,000</td><td style="text-align:right">₹ 2,65,000</td><td>⋯</td></tr>
+        <tr><td>2026-03-31</td><td>auto</td><td style="text-align:right">₹ 12,20,500</td><td style="text-align:right">₹ 14,82,000</td><td style="text-align:right">₹ 2,61,500</td><td>⋯</td></tr>
+        <tr><td>2026-02-28</td><td>auto</td><td style="text-align:right">₹ 11,85,000</td><td style="text-align:right">₹ 14,40,000</td><td style="text-align:right">₹ 2,55,000</td><td>⋯</td></tr>
+      </table>
+    </div>
+  </main>
+</div>
+</body></html>

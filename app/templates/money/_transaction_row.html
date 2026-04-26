@@ -1,0 +1,29 @@
+{% comment %}Single row of the transaction multi-row formset. Expects `form` and `row_index`.{% endcomment %}
+<tr class="align-top border-t border-slate-100">
+  <td class="py-2 pr-2">{{ form.date }}</td>
+  <td class="py-2 pr-2">{{ form.category }}</td>
+  <td class="py-2 pr-2">{{ form.description }}</td>
+  <td class="py-2 pr-2">{{ form.amount }}</td>
+  <td class="py-2 pr-2">{{ form.currency }}</td>
+  <td class="py-2 pr-2 text-center">
+    <input type="checkbox" name="form-{{ row_index }}-is_recurring"
+           {% if form.is_recurring.value %}checked{% endif %}>
+  </td>
+  <td class="py-2 pr-2">
+    <div class="flex flex-col gap-1">
+      {{ form.tags_raw }}
+      {{ form.notes }}
+    </div>
+  </td>
+  <td class="py-2 pr-2">
+    <button type="button" class="text-slate-400 hover:text-rose-700 text-lg"
+            @click="$el.closest('tr').remove()">&times;</button>
+  </td>
+</tr>
+{% if form.errors %}
+<tr><td colspan="8" class="py-1 text-xs text-rose-700">
+  {% for field, errs in form.errors.items %}
+    <div><span class="font-medium">{{ field }}:</span> {{ errs|join:' ' }}</div>
+  {% endfor %}
+</td></tr>
+{% endif %}

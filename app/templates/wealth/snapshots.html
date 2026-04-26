@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Net Worth · Wealth{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <header class="flex items-end justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight">Net Worth</h1>
+      <p class="text-slate-500 mt-1">{{ count }} snapshot{{ count|pluralize }} · Base: {{ base_currency }}</p>
+    </div>
+    <form method="post" action="{% url 'snapshot_create' %}">{% csrf_token %}
+      <button class="rounded-md bg-emerald-700 text-white px-3 py-1.5 text-sm hover:bg-emerald-800">＋ Take New Snapshot</button>
+    </form>
+  </header>
+
+  {% include "wealth/_tabs.html" with active="snapshots" %}
+  {% include "wealth/_messages.html" %}
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4">
+    <div class="flex gap-2 mb-3 text-xs">
+      {% for w in "1m,6m,1y,all"|cut:" "|slice:":" %}{% endfor %}
+      <a href="?window=1m" class="rounded-full px-2.5 py-1 {% if window == '1m' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">1M</a>
+      <a href="?window=6m" class="rounded-full px-2.5 py-1 {% if window == '6m' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">6M</a>
+      <a href="?window=1y" class="rounded-full px-2.5 py-1 {% if window == '1y' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">1Y</a>
+      <a href="?window=all" class="rounded-full px-2.5 py-1 {% if window == 'all' %}bg-slate-900 text-white{% else %}bg-slate-100 text-slate-700 hover:bg-slate-200{% endif %}">All</a>
+      <span class="flex-1"></span>
+      <div class="text-slate-500" x-data="{ show: 'net_worth' }">
+        <button class="rounded-full px-2.5 py-1" :class="show === 'net_worth' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'" @click="show = 'net_worth'; window.chartShow('net_worth')">Net Worth</button>
+        <button class="rounded-full px-2.5 py-1" :class="show === 'total_assets' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'" @click="show = 'total_assets'; window.chartShow('total_assets')">Assets</button>
+        <button class="rounded-full px-2.5 py-1" :class="show === 'total_liabilities' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'" @click="show = 'total_liabilities'; window.chartShow('total_liabilities')">Liabilities</button>
+      </div>
+    </div>
+    <canvas id="snapshotLine" height="80"></canvas>
+    {% if count == 0 %}
+      <p class="mt-4 text-center text-sm text-slate-500">No snapshots yet. Click "Take New Snapshot" to start your timeline.</p>
+    {% endif %}
+  </div>
+
+  {% if snapshots %}
+  <div class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="text-left text-xs uppercase tracking-wide text-slate-500 bg-slate-50">
+        <tr>
+          <th class="px-3 py-2">Taken</th>
+          <th class="px-3 py-2">Source</th>
+          <th class="px-3 py-2 text-right">Net Worth</th>
+          <th class="px-3 py-2 text-right">Assets</th>
+          <th class="px-3 py-2 text-right">Liabilities</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for s in snapshots %}
+          <tr>
+            <td class="px-3 py-2">{{ s.taken_at|date:"Y-m-d H:i" }}</td>
+            <td class="px-3 py-2 text-slate-500">{{ s.get_source_display }}</td>
+            <td class="px-3 py-2 text-right">{{ s.base_currency }} {{ s.net_worth|floatformat:2|intcomma }}</td>
+            <td class="px-3 py-2 text-right">{{ s.base_currency }} {{ s.total_assets|floatformat:2|intcomma }}</td>
+            <td class="px-3 py-2 text-right">{{ s.base_currency }} {{ s.total_liabilities|floatformat:2|intcomma }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    var series = {{ series_json|safe }};
+    var el = document.getElementById('snapshotLine');
+    if (!el) return;
+    var labels = series.map(function (s) { return s.taken_on; });
+    var datasets = {
+      net_worth:        series.map(function (s) { return Number(s.net_worth); }),
+      total_assets:     series.map(function (s) { return Number(s.total_assets); }),
+      total_liabilities: series.map(function (s) { return Number(s.total_liabilities); })
+    };
+    var chart = new Chart(el.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Net Worth',
+          data: datasets.net_worth,
+          borderColor: '#15803d',
+          backgroundColor: 'rgba(21,128,61,0.12)',
+          tension: 0.25,
+          fill: true,
+          pointRadius: 3
+        }]
+      },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
+    });
+    window.chartShow = function (key) {
+      var colors = { net_worth: '#15803d', total_assets: '#2563eb', total_liabilities: '#b91c1c' };
+      var labels_map = { net_worth: 'Net Worth', total_assets: 'Assets', total_liabilities: 'Liabilities' };
+      chart.data.datasets[0].data = datasets[key];
+      chart.data.datasets[0].label = labels_map[key];
+      chart.data.datasets[0].borderColor = colors[key];
+      chart.data.datasets[0].backgroundColor = colors[key] + '20';
+      chart.update();
+    };
+  })();
+</script>
+{% endblock %}

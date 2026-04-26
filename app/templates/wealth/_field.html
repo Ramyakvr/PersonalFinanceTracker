@@ -1,0 +1,11 @@
+{% comment %}
+Generic form field wrapper. Expects `field` (a BoundField) and `label` (string).
+{% endcomment %}
+<div>
+  <label for="{{ field.id_for_label }}" class="block text-[11px] uppercase tracking-wider text-slate-500 mb-1">
+    {{ label }}
+  </label>
+  {{ field }}
+  {% if field.help_text %}<p class="text-[11px] text-slate-400 mt-1">{{ field.help_text }}</p>{% endif %}
+  {% if field.errors %}<p class="text-xs text-rose-700 mt-1">{{ field.errors|join:' ' }}</p>{% endif %}
+</div>

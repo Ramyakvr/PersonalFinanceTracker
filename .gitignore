@@ -1,0 +1,16 @@
+.DS_Store
+app/.venv/
+app/__pycache__/
+**/__pycache__/
+*.pyc
+app/.env
+app/.pytest_cache/
+app/.ruff_cache/
+app/htmlcov/
+app/.coverage
+app/coverage.xml
+app/static/css/tailwind.out.css
+app/bin/tailwindcss
+*.log
+.claude/
+docs/

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit goal{% else %}New goal{% endif %} · Essentials{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-3xl">
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">{% if is_edit %}Edit goal{% else %}New goal{% endif %}</h1>
+    <p class="text-slate-500 mt-1">Set a target, pick a tracking rule, optionally link specific assets.</p>
+  </header>
+
+  {% include "essentials/_tabs.html" with active="goals" %}
+  {% include "wealth/_messages.html" %}
+
+  <form method="post" class="rounded-lg border border-slate-200 bg-white p-6 space-y-4">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Goal name *</label>
+        {{ form.name }}
+        {% if form.name.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.name.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Template</label>
+        {{ form.template_id }}
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Target amount *</label>
+        {{ form.target_amount }}
+        {% if form.target_amount.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.target_amount.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Currency</label>
+        {{ form.currency }}
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Target date *</label>
+        {{ form.target_date }}
+        {% if form.target_date.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.target_date.errors|join:", " }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Track progress by</label>
+        {{ form.linked_asset_class }}
+      </div>
+      <div class="sm:col-span-2">
+        <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Link specific assets (optional)</label>
+        {{ form.linked_asset_ids_raw }}
+        <p class="text-xs text-slate-500 mt-1">Comma-separated asset IDs. Overrides the class-wide rule above.</p>
+        {% if form.linked_asset_ids_raw.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.linked_asset_ids_raw.errors|join:", " }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="flex gap-2 pt-2">
+      <button class="rounded-md bg-emerald-700 text-white px-4 py-2 text-sm hover:bg-emerald-800">
+        {% if is_edit %}Save changes{% else %}Create goal{% endif %}
+      </button>
+      <a href="{% url 'goal_list' %}" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm hover:bg-slate-50">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

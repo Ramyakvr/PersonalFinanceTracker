@@ -1,0 +1,26 @@
+{% comment %}
+Tab strip for the Wealth section. `active` should be one of:
+assets, liabilities, investments, snapshots, allocation.
+{% endcomment %}
+<div class="flex gap-6 border-b border-slate-200 mb-6">
+  <a href="{% url 'asset_list' %}"
+     class="pb-2 text-sm font-medium {% if active == 'assets' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Assets
+  </a>
+  <a href="{% url 'liability_list' %}"
+     class="pb-2 text-sm font-medium {% if active == 'liabilities' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Liabilities
+  </a>
+  <a href="{% url 'investments_list' %}"
+     class="pb-2 text-sm font-medium {% if active == 'investments' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Investments
+  </a>
+  <a href="{% url 'snapshots' %}"
+     class="pb-2 text-sm font-medium {% if active == 'snapshots' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Net Worth
+  </a>
+  <a href="{% url 'allocation' %}"
+     class="pb-2 text-sm font-medium {% if active == 'allocation' %}border-b-2 border-emerald-700 text-emerald-800{% else %}text-slate-500 hover:text-slate-800{% endif %}">
+    Allocation
+  </a>
+</div>

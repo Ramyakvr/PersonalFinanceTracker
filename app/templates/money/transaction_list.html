@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ segment|title }} &middot; Personal Finance{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <header class="flex items-end justify-between">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight">Money</h1>
+      <p class="text-sm text-slate-500 mt-1">
+        {{ count }} entr{{ count|pluralize:"y,ies" }}
+        {% if total %} &middot; {{ total_currency }} {{ total|floatformat:0 }} (non-exempt){% endif %}
+      </p>
+    </div>
+    <a href="{% url 'transaction_new' segment %}"
+       class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+      + Add
+    </a>
+  </header>
+
+  {% include "money/_tabs.html" with active=segment %}
+  {% include "wealth/_messages.html" %}
+
+  <form method="get" class="flex flex-wrap items-center gap-2">
+    {% for chip in period_chips %}
+      <a href="?{% if search %}q={{ search|urlencode }}&{% endif %}period={{ chip.key }}"
+         class="rounded-full border px-3 py-1 text-xs
+                {% if period == chip.key %}border-emerald-600 bg-emerald-50 text-emerald-800 font-medium{% else %}border-slate-300 text-slate-600 hover:bg-slate-100{% endif %}">
+        {{ chip.label }}
+      </a>
+    {% endfor %}
+    <div class="flex-1"></div>
+    <input name="q" value="{{ search }}" placeholder="Search"
+           class="w-56 rounded border border-slate-300 px-3 py-2 text-sm">
+    <select name="category" class="rounded border border-slate-300 px-3 py-2 text-sm">
+      <option value="">All categories</option>
+      {% for c in categories %}
+        <option value="{{ c.id }}" {% if c.id == selected_category %}selected{% endif %}>
+          {{ c.name }}{% if c.is_exempt %} (exempt){% endif %}
+        </option>
+      {% endfor %}
+    </select>
+    <input type="hidden" name="period" value="{{ period }}">
+    <button type="submit" class="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">
+      Filter
+    </button>
+  </form>
+
+  <div class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+    {% if transactions %}
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+          <tr>
+            <th class="text-left px-4 py-3 w-32">Date</th>
+            <th class="text-left px-4 py-3">Category</th>
+            <th class="text-left px-4 py-3">Description</th>
+            <th class="text-left px-4 py-3">Tags</th>
+            <th class="text-right px-4 py-3">Amount</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for t in transactions %}
+          <tr>
+            <td class="px-4 py-3 whitespace-nowrap">{{ t.date|date:"Y-m-d" }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs">{{ t.category.name }}</span>
+              {% if t.category.is_exempt %}<span class="text-[10px] text-slate-400 ml-1">exempt</span>{% endif %}
+            </td>
+            <td class="px-4 py-3">
+              {{ t.description }}
+              {% if t.recurring_rule_id %}
+                <span class="ml-2 inline-block rounded-full bg-emerald-50 text-emerald-800 px-2 py-0.5 text-[10px]">recurring</span>
+              {% endif %}
+              {% if t.notes %}<div class="text-[11px] text-slate-400">{{ t.notes }}</div>{% endif %}
+            </td>
+            <td class="px-4 py-3">
+              {% for tag in t.tags.all %}
+                <span class="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs mr-1">{{ tag.label }}</span>
+              {% endfor %}
+            </td>
+            <td class="px-4 py-3 text-right tabular-nums">{{ t.currency }} {{ t.amount|floatformat:2 }}</td>
+            <td class="px-4 py-3 text-right">
+              <a href="{% url 'transaction_edit' t.id %}" class="text-xs text-slate-500 hover:text-slate-800 underline">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="p-10 text-center">
+        <div class="text-lg font-medium">No {{ segment }} yet</div>
+        <p class="text-sm text-slate-500 mt-1">
+          {% if search or selected_category %}
+            Nothing matches your filter. <a href="{% url 'transaction_list' segment %}" class="underline">Clear</a>.
+          {% else %}
+            Log your first {{ segment|slice:":-1" }} entry above.
+          {% endif %}
+        </p>
+        <a href="{% url 'transaction_new' segment %}"
+           class="inline-block mt-4 rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+          + Add your first {{ segment|slice:":-1" }}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

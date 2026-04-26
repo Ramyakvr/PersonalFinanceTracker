@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>03 — Add Asset wizard</title><link rel="stylesheet" href="_shell.css"></head><body>
+<div class="note"><b>03 — Wealth / Add Asset</b><br>Route: <code>/assets/new</code><br>Step 1: pick category (8-card grid). Step 2: pick subtype, then fill form. Asset ↔ Liability segment toggle at the top.</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">FinBoom</div>
+    <div class="nav-item">⬚ Overview</div>
+    <div class="nav-item active">↗ Wealth</div>
+    <div class="nav-item">💳 Money</div>
+    <div class="nav-item">◎ Essentials</div>
+    <div class="nav-section">Tools</div>
+    <div class="nav-item">↥ Import</div>
+    <div class="nav-item">⚙ Settings</div>
+  </aside>
+  <main class="main">
+    <div style="color:var(--muted); font-size:12px; margin-bottom:6px;">← Back to Assets</div>
+    <h1 class="page-title">Add Asset</h1>
+    <p class="page-sub">Track what you own</p>
+
+    <div style="display:inline-flex; background:var(--chip); border-radius:999px; padding:4px; margin-bottom:18px;">
+      <span class="chip active">Asset</span><span class="chip">Liability</span>
+    </div>
+
+    <h3 style="margin:18px 0 10px;">Step 1 · Choose a category</h3>
+    <div class="grid-cells" style="margin-bottom:18px;">
+      <div class="cat">Stocks &amp; Equity<small>Direct Stock · Equity MF · ETF · ESOP</small></div>
+      <div class="cat">Gold &amp; Silver<small>Physical · Digital · SGB · Gold ETF · Silver</small></div>
+      <div class="cat">Bonds &amp; Debt<small>Bonds · Debentures · Debt MF · Corp FD · G-Sec</small></div>
+      <div class="cat">Real Estate<small>Residential · Commercial · Land · REIT</small></div>
+      <div class="cat">Retirement<small>EPF · PPF · NPS · SSY</small></div>
+      <div class="cat">Cash &amp; Savings<small>Savings · FD · RD · Liquid · Arbitrage</small></div>
+      <div class="cat">Alternatives<small>P2P Lending · PMS / AIF</small></div>
+      <div class="cat">Other<small>Catch-all</small></div>
+    </div>
+
+    <h3 style="margin:18px 0 10px;">Step 2 · <span class="pill">Direct Stock</span> details</h3>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field"><label>Name *</label><input placeholder="e.g. INFY — Infosys"></div>
+        <div class="field"><label>Symbol (NSE/BSE)</label><input placeholder="e.g. INFY.NSE"></div>
+        <div class="field"><label>Currency</label><select><option>₹ INR</option><option>$ USD</option></select></div>
+        <div class="field"><label>Live price (BETA)</label>
+          <div><input type="checkbox" checked> Fetch LTP automatically</div>
+        </div>
+        <div class="field"><label>Quantity</label><input placeholder="0"></div>
+        <div class="field"><label>Avg Buy Price</label><input placeholder="0"></div>
+        <div class="field"><label>Current Value *</label><input placeholder="0"></div>
+        <div class="field"><label>Sub-class</label><select><option>Large-cap</option><option>Mid-cap</option><option>Small-cap</option></select></div>
+      </div>
+
+      <details style="margin-top: 16px;">
+        <summary style="cursor:pointer; color:var(--accent); font-weight:600;">+ Add details (Geography, Tags, Notes, Exclude from allocation)</summary>
+        <div class="form-grid" style="margin-top: 12px;">
+          <div class="field"><label>Geography</label><select><option>India</option><option>International</option><option>Mixed</option></select></div>
+          <div class="field"><label>Tags</label><input placeholder="comma-separated"></div>
+          <div class="field" style="grid-column: span 2;"><label>Notes</label><textarea rows="2"></textarea></div>
+          <div class="field" style="grid-column: span 2;"><label>&nbsp;</label><div><input type="checkbox"> Exclude from allocation</div></div>
+        </div>
+      </details>
+
+      <div style="margin-top:18px; display:flex; gap:8px;">
+        <span class="btn primary">Save</span>
+        <span class="btn">Save &amp; Add another</span>
+        <span class="btn ghost">Cancel</span>
+      </div>
+    </div>
+
+    <div class="callout">Other subtype-specific form fields (examples):<br>
+      • FD/RD → Principal, Rate, Start, Maturity<br>
+      • EPF/PPF/NPS → Balance, Employee/Employer contribution, Rate, Weight<br>
+      • Real Estate → Purchase price, Location, Property type<br>
+      • Gold → Weight (g), Purity, Purchase rate<br>
+      • P2P/PMS/AIF → Principal, Expected rate, Maturity</div>
+  </main>
+</div>
+</body></html>

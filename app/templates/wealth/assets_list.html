@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Assets &middot; Personal Finance{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">Wealth</h1>
+    <p class="text-sm text-slate-500 mt-1">{{ count }} asset{{ count|pluralize }}</p>
+  </header>
+
+  {% include "wealth/_tabs.html" with active="assets" %}
+  {% include "wealth/_messages.html" %}
+
+  <form method="get" class="flex flex-wrap items-center gap-2">
+    <input name="q" value="{{ search }}" placeholder="Search by name or symbol"
+           class="w-64 rounded border border-slate-300 px-3 py-2 text-sm">
+
+    <select name="category" class="rounded border border-slate-300 px-3 py-2 text-sm">
+      <option value="">All categories</option>
+      {% for value, label in categories %}
+        <option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="currency" class="rounded border border-slate-300 px-3 py-2 text-sm">
+      <option value="">All currencies</option>
+      {% for ccy in currencies %}
+        <option value="{{ ccy }}" {% if ccy == selected_currency %}selected{% endif %}>{{ ccy }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-100">
+      Filter
+    </button>
+    {% if search or selected_category or selected_currency %}
+      <a href="{% url 'asset_list' %}" class="text-sm text-slate-500 underline">Clear</a>
+    {% endif %}
+
+    <div class="flex-1"></div>
+
+    <a href="{% url 'asset_new' %}"
+       class="rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+      + Add Asset
+    </a>
+  </form>
+
+  <div class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+    {% if assets %}
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+          <tr>
+            <th class="text-left px-4 py-3">Name</th>
+            <th class="text-left px-4 py-3">Category</th>
+            <th class="text-left px-4 py-3">Subtype</th>
+            <th class="text-left px-4 py-3">Currency</th>
+            <th class="text-right px-4 py-3">Current value</th>
+            <th class="text-left px-4 py-3">Tags</th>
+            <th class="text-left px-4 py-3">Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for a in assets %}
+          <tr>
+            <td class="px-4 py-3 font-medium">
+              <a href="{% url 'asset_edit' a.id %}" class="hover:underline">{{ a.name }}</a>
+              {% if a.instrument_symbol %}
+                <div class="text-xs text-slate-400 font-normal">{{ a.instrument_symbol }}</div>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3">{{ a.get_category_display }}</td>
+            <td class="px-4 py-3">{{ a.subtype|default:"\u2014" }}</td>
+            <td class="px-4 py-3">{{ a.currency }}</td>
+            <td class="px-4 py-3 text-right tabular-nums">{{ a.current_value }}</td>
+            <td class="px-4 py-3">
+              {% for t in a.tags.all %}
+                <span class="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs mr-1">{{ t.label }}</span>
+              {% endfor %}
+            </td>
+            <td class="px-4 py-3 text-slate-500 text-xs">{{ a.updated_at|date:"M j, Y" }}</td>
+            <td class="px-4 py-3 text-right">
+              <a href="{% url 'asset_edit' a.id %}" class="text-xs text-slate-500 hover:text-slate-800 underline">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="p-10 text-center">
+        <div class="text-lg font-medium">No assets yet</div>
+        <p class="text-sm text-slate-500 mt-1">
+          {% if search or selected_category or selected_currency %}
+            No assets match your filter. <a href="{% url 'asset_list' %}" class="underline">Clear</a>.
+          {% else %}
+            Track your first holding to see your net worth come together.
+          {% endif %}
+        </p>
+        <a href="{% url 'asset_new' %}"
+           class="inline-block mt-4 rounded bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+          + Add your first asset
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

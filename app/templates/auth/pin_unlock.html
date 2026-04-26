@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Enter PIN{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto space-y-5">
+  <header class="text-center">
+    <h1 class="text-2xl font-semibold tracking-tight">Enter your PIN</h1>
+    <p class="text-sm text-slate-500 mt-1">App is locked. Enter your 4-digit PIN to continue.</p>
+  </header>
+
+  {% if locked %}
+    <div class="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900 text-center">
+      Too many attempts. Try again in {{ remaining }}s.
+    </div>
+  {% endif %}
+
+  {% if messages %}
+    <div class="space-y-2">
+      {% for message in messages %}
+        <div class="rounded border px-3 py-2 text-sm border-rose-200 bg-rose-50 text-rose-900">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" class="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_path }}">
+    <div>
+      <label class="block text-sm font-medium mb-1">PIN</label>
+      <input name="pin" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" autofocus
+             {% if locked %}disabled{% endif %}
+             class="w-full rounded border border-slate-300 px-3 py-2 text-center tracking-[0.5em]">
+    </div>
+    <button type="submit" {% if locked %}disabled{% endif %}
+            class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+      Unlock
+    </button>
+  </form>
+</div>
+{% endblock %}

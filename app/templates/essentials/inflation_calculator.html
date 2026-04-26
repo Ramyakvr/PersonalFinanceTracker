@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Inflation Calculator · Goals{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-2xl">
+  <header>
+    <h1 class="text-3xl font-semibold tracking-tight">Inflation Calculator</h1>
+    <p class="text-slate-500 mt-1">What will it cost when you need it?</p>
+  </header>
+
+  {% include "essentials/_tabs.html" with active="goals" %}
+
+  <form method="get" class="rounded-lg border border-slate-200 bg-white p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div>
+      <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Amount today</label>
+      <input type="number" step="0.01" name="amount" value="{{ amount }}" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+    </div>
+    <div>
+      <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Years</label>
+      <input type="number" min="0" name="years" value="{{ years }}" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+    </div>
+    <div>
+      <label class="block text-xs uppercase tracking-wide text-slate-500 mb-1">Inflation % p.a.</label>
+      <input type="number" step="0.01" name="inflation" value="{{ inflation_pct }}" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+    </div>
+    <div class="sm:col-span-3">
+      <button class="rounded-md bg-emerald-700 text-white px-4 py-2 text-sm hover:bg-emerald-800">Calculate</button>
+      <a href="{% url 'goal_list' %}" class="ml-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm hover:bg-slate-50">Back to Goals</a>
+    </div>
+  </form>
+
+  {% if result is not None %}
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm">
+      In {{ years }} year{{ years|pluralize }} at {{ inflation_pct }}% inflation, <b>{{ amount }}</b> today will be worth roughly
+      <b>{{ result|floatformat:0|intcomma }}</b>.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
