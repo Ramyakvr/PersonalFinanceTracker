@@ -32,6 +32,7 @@ from core.services.investments import (
     portfolio_summary,
     portfolio_xirr,
     realised_by_fy,
+    realised_by_fy_by_pan,
 )
 
 
@@ -304,6 +305,83 @@ def test_realised_by_fy_instrument_filter(profile, zerodha, hdfc_bank):
 
 
 @pytest.mark.django_db
+def test_realised_by_fy_by_pan_groups_per_pan(profile, zerodha, chola, hdfc_bank):
+    # Two demats under different PANs file separate ITRs. Tag them.
+    zerodha.pan = "ABCDE1234F"
+    zerodha.pan_holder_name = "Self"
+    zerodha.save()
+    chola.pan = "FGHIJ5678K"
+    chola.pan_holder_name = "Mom"
+    chola.save()
+
+    # Self (zerodha): +500 STCG in FY22-23
+    _buy(zerodha, hdfc_bank, date(2022, 1, 1), "10", "1000", "z-1")
+    _sell(zerodha, hdfc_bank, date(2022, 12, 15), "5", "1100", "z-2")
+    # Mom (chola): +1000 LTCG in FY23-24 (held > 365 days)
+    _buy(chola, hdfc_bank, date(2022, 1, 1), "10", "1000", "c-1")
+    _sell(chola, hdfc_bank, date(2023, 4, 15), "5", "1200", "c-2")
+
+    groups, totals = realised_by_fy_by_pan(profile)
+    by_holder = {g.holder_name: g for g in groups}
+    assert set(by_holder) == {"Self", "Mom"}
+
+    self_rows = {r.fy: r for r in by_holder["Self"].rows}
+    assert self_rows["FY22-23"].stcg == Decimal("500")
+    assert self_rows["FY22-23"].ltcg == Decimal("0")
+    assert "FY23-24" not in self_rows  # Mom's LTCG must not leak into Self
+
+    mom_rows = {r.fy: r for r in by_holder["Mom"].rows}
+    assert mom_rows["FY23-24"].ltcg == Decimal("1000")
+    assert mom_rows["FY23-24"].stcg == Decimal("0")
+    assert "FY22-23" not in mom_rows
+
+    # Across-PAN totals match the flat realised_by_fy aggregation.
+    flat = {r.fy: r for r in realised_by_fy(profile)}
+    totals_by_fy = {r.fy: r for r in totals}
+    assert set(totals_by_fy) == set(flat)
+    for fy, r in flat.items():
+        assert totals_by_fy[fy].ltcg == r.ltcg
+        assert totals_by_fy[fy].stcg == r.stcg
+
+
+@pytest.mark.django_db
+def test_realised_by_fy_by_pan_buckets_blank_pan_separately(profile, zerodha, chola, hdfc_bank):
+    """Accounts with no PAN tag fall into a single 'Unassigned' group, sorted last."""
+    zerodha.pan = "ABCDE1234F"
+    zerodha.pan_holder_name = "Self"
+    zerodha.save()
+    # chola left with blank PAN
+
+    _buy(zerodha, hdfc_bank, date(2022, 1, 1), "10", "1000", "z-1")
+    _sell(zerodha, hdfc_bank, date(2022, 12, 15), "5", "1100", "z-2")
+    _buy(chola, hdfc_bank, date(2022, 1, 1), "10", "1000", "c-1")
+    _sell(chola, hdfc_bank, date(2022, 12, 15), "5", "1100", "c-2")
+
+    groups, _ = realised_by_fy_by_pan(profile)
+    assert [g.display_name for g in groups] == ["Self", "Unassigned"]
+
+
+@pytest.mark.django_db
+def test_realised_by_fy_by_pan_merges_same_pan_across_brokers(profile, zerodha, chola, hdfc_bank):
+    """Two demats under the same PAN must collapse into one group."""
+    pan = "ABCDE1234F"
+    for ba in (zerodha, chola):
+        ba.pan = pan
+        ba.pan_holder_name = "Self"
+        ba.save()
+
+    _buy(zerodha, hdfc_bank, date(2022, 1, 1), "10", "1000", "z-1")
+    _sell(zerodha, hdfc_bank, date(2022, 12, 15), "5", "1100", "z-2")
+    _buy(chola, hdfc_bank, date(2022, 1, 1), "10", "1000", "c-1")
+    _sell(chola, hdfc_bank, date(2022, 12, 15), "5", "1100", "c-2")
+
+    groups, _ = realised_by_fy_by_pan(profile)
+    assert len(groups) == 1
+    rows_by_fy = {r.fy: r for r in groups[0].rows}
+    assert rows_by_fy["FY22-23"].stcg == Decimal("1000")  # 500 + 500
+
+
+@pytest.mark.django_db
 def test_breakdown_ltcg_eligible_unrealised(profile, zerodha, hdfc_bank):
     """Lots held > 365 days at as_of contribute to ltcg_eligible_unrealised; younger lots don't."""
     # Lot A: bought 2022-01-01 (will be > 365 days by 2024-01-01)
@@ -315,9 +393,7 @@ def test_breakdown_ltcg_eligible_unrealised(profile, zerodha, hdfc_bank):
     def _price(_inst, _when):
         return (Decimal("1200"), False)
 
-    br = instrument_breakdown(
-        profile, hdfc_bank, as_of=date(2024, 1, 1), price_lookup=_price
-    )
+    br = instrument_breakdown(profile, hdfc_bank, as_of=date(2024, 1, 1), price_lookup=_price)
     # Only the 10-unit lot is long-term; gain = 10 * (1200 - 1000) = 2000
     assert br.ltcg_eligible_unrealised == Decimal("2000")
     # Total unrealised = 15 * 200 = 3000

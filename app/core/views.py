@@ -1492,35 +1492,43 @@ def investments_list(request: HttpRequest) -> HttpResponse:
     summary_xirr_pct = float(summary.xirr) * 100 if summary.xirr is not None else None
     unrealised = summary.total_unrealised
 
-    # Per-broker invested sub-totals (only displayed when no broker filter is
-    # active — gives a sanity glance across demats without forcing a filter).
-    broker_strip: list[dict] = []
-    if ba_filter is None and all_broker_accounts:
-        from core.services.investments import portfolio_summary as _ps
+    # Dashboard tab is independent of the Holdings filters — it always shows
+    # cumulative totals across all broker accounts and both segments
+    # (Equity + MF), so users see a true portfolio-wide view regardless of
+    # how they've sliced the Holdings table.
+    from core.services.investments import portfolio_summary as _ps
+    from core.services.investments import realised_by_fy as _realised_by_fy
+    from core.services.investments import realised_by_fy_by_pan as _realised_by_fy_by_pan
 
+    def _dashboard_block(kind: str | None) -> dict:
+        s = _ps(profile, kind=kind, price_lookup=price_lookup)
+        strip: list[dict] = []
         for ba in all_broker_accounts:
-            sub = _ps(
-                profile,
-                broker_account=ba,
-                kind=selected_kind or None,
-                price_lookup=price_lookup,
-            )
+            sub = _ps(profile, broker_account=ba, kind=kind, price_lookup=price_lookup)
             if sub.total_invested_open > 0 or sub.total_current_value > 0:
-                broker_strip.append(
+                strip.append(
                     {
                         "broker": ba,
                         "invested": sub.total_invested_open,
                         "current_value": sub.total_current_value,
                     }
                 )
+        return {
+            "summary": s,
+            "xirr_pct": float(s.xirr) * 100 if s.xirr is not None else None,
+            "unrealised": s.total_unrealised,
+            "broker_strip": strip,
+        }
 
-    # Realised P&L grouped by Indian Financial Year (Apr–Mar). Tax-planning
-    # signal that XIRR / lifetime totals don't capture.
-    from core.services.investments import realised_by_fy as _realised_by_fy
+    dashboard_all = _dashboard_block(None)
+    dashboard_eq = _dashboard_block("STOCK")
+    dashboard_mf = _dashboard_block("MF")
 
-    fy_rows = _realised_by_fy(
-        profile, broker_account=ba_filter, kind=selected_kind or None
-    )
+    dashboard_fy_rows = _realised_by_fy(profile)
+    dashboard_pan_fy_groups: list = []
+    groups, _totals = _realised_by_fy_by_pan(profile)
+    if len(groups) > 1:
+        dashboard_pan_fy_groups = groups
 
     from core.models import UserPreferences as _UP
 
@@ -1545,7 +1553,6 @@ def investments_list(request: HttpRequest) -> HttpResponse:
         "unrealised": unrealised,
         "rows": rows,
         "broker_accounts": all_broker_accounts,
-        "broker_strip": broker_strip,
         "selected_broker_account_id": selected_broker_account_id,
         "selected_kind": selected_kind,
         "kinds": InstrumentKind.choices,
@@ -1554,7 +1561,11 @@ def investments_list(request: HttpRequest) -> HttpResponse:
         "include_old": include_old,
         "sort_qs_extra": sort_qs_extra,
         "stale_count": stale_count,
-        "fy_rows": fy_rows,
+        "dashboard_all": dashboard_all,
+        "dashboard_eq": dashboard_eq,
+        "dashboard_mf": dashboard_mf,
+        "dashboard_fy_rows": dashboard_fy_rows,
+        "dashboard_pan_fy_groups": dashboard_pan_fy_groups,
         "live_price_enabled": bool(prefs and prefs.live_price_enabled),
         "last_price_refresh_at": prefs.last_price_refresh_at if prefs else None,
     }
@@ -1651,9 +1662,7 @@ def instrument_detail(request: HttpRequest, instrument_id: int) -> HttpResponse:
             days = (today - lot.opened_on).days
             current_value = lot.qty_remaining * price if show_lot_pricing else None
             unrealised = (
-                lot.qty_remaining * (price - lot.cost_per_unit)
-                if show_lot_pricing
-                else None
+                lot.qty_remaining * (price - lot.cost_per_unit) if show_lot_pricing else None
             )
             open_lot_rows.append(
                 {

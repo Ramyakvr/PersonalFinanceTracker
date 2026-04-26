@@ -21,7 +21,6 @@
     </div>
   </header>
 
-  {% include "wealth/_tabs.html" with active="investments" %}
   {% include "wealth/_messages.html" %}
 
   {% if not profile %}
@@ -37,124 +36,136 @@
       </p>
     </div>
   {% else %}
+  <div x-data="{
+        tab: ({'#holdings': 'holdings', '#tax': 'tax'}[window.location.hash] || 'dashboard'),
+        seg: 'all'
+      }"
+       x-init="$watch('tab', v => history.replaceState(null, '', '#' + v))">
 
-    <!-- KPI strip — primary (current position) -->
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <div class="rounded-lg border border-slate-200 bg-white p-3">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Invested (open)</div>
-        <div class="mt-1 text-xl font-semibold">{{ summary.total_invested_open|floatformat:0|intcomma }}</div>
-      </div>
-      <div class="rounded-lg border border-slate-200 bg-white p-3">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Current Value</div>
-        <div class="mt-1 text-xl font-semibold">{{ summary.total_current_value|floatformat:0|intcomma }}</div>
-      </div>
-      <div class="rounded-lg border border-slate-200 bg-white p-3" title="Mark-to-market gain/loss on currently-held positions: current value − cost basis of open lots.">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Unrealised P&amp;L</div>
-        <div class="mt-1 text-xl font-semibold {% if unrealised >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
-          {{ unrealised|floatformat:0|intcomma }}
-        </div>
-      </div>
-      <div class="rounded-lg border border-slate-200 bg-white p-3">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Portfolio XIRR</div>
-        {% if summary_xirr_pct is not None %}
-          <div class="mt-1 text-xl font-semibold {% if summary_xirr_pct >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
-            {{ summary_xirr_pct|floatformat:2 }}%
-          </div>
-        {% else %}
-          <div class="mt-1 text-xl font-semibold text-slate-400">—</div>
-        {% endif %}
-      </div>
-    </section>
-
-    <!-- KPI strip — secondary (lifetime + counts) -->
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <div class="rounded-lg border border-slate-200 bg-white p-3" title="Lifetime realised P&L from closed lots (every sell ever made).">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Realised P&amp;L</div>
-        <div class="mt-1 text-xl font-semibold {% if summary.total_realised >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
-          {{ summary.total_realised|floatformat:0|intcomma }}
-        </div>
-      </div>
-      <div class="rounded-lg border border-slate-200 bg-white p-3">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Dividends</div>
-        <div class="mt-1 text-xl font-semibold">{{ summary.total_dividends|floatformat:0|intcomma }}</div>
-      </div>
-      <div class="rounded-lg border border-slate-200 bg-white p-3" title="Number of instruments currently held vs. fully exited.">
-        <div class="text-xs uppercase tracking-wide text-slate-500">Holdings</div>
-        <div class="mt-1 text-xl font-semibold">
-          {{ summary.holdings_count }}
-          {% if summary.exited_count %}<span class="text-sm font-normal text-slate-400">+ {{ summary.exited_count }} exited</span>{% endif %}
-        </div>
-      </div>
-      <div class="rounded-lg border border-slate-200 bg-white p-3" title="Sum of unrealised gains across open lots held more than 365 days; eligible for long-term capital gains treatment if sold today.">
-        <div class="text-xs uppercase tracking-wide text-slate-500">LTCG-eligible Unrealised</div>
-        <div class="mt-1 text-xl font-semibold {% if summary.total_ltcg_eligible_unrealised >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">
-          {{ summary.total_ltcg_eligible_unrealised|floatformat:0|intcomma }}
-        </div>
-      </div>
-    </section>
-
-    {% if broker_strip %}
-    <section class="rounded-lg border border-slate-200 bg-white px-4 py-3">
-      <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">By demat account</div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-sm">
-        {% for blk in broker_strip %}
-          <div class="border border-slate-100 rounded p-2">
-            <div class="font-medium">{{ blk.broker.get_broker_key_display }} · {{ blk.broker.client_code|default:blk.broker.account_label }}</div>
-            <div class="text-slate-500 text-xs mt-1">
-              Invested {{ blk.invested|floatformat:0|intcomma }}
-              · Current {{ blk.current_value|floatformat:0|intcomma }}
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
-
-    {% if summary.conversion_errors %}
-    <div class="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-      {{ summary.conversion_errors|length }} cash-flow row{{ summary.conversion_errors|length|pluralize }} couldn't be converted to {{ base_currency }}.
-      Check FX rates or the instrument currency.
+    <!-- Investments sub-tabs -->
+    <div class="flex gap-6 border-b border-slate-200 mb-6">
+      <button type="button" @click="tab = 'dashboard'"
+              :class="tab === 'dashboard' ? 'border-b-2 border-emerald-700 text-emerald-800' : 'text-slate-500 hover:text-slate-800'"
+              class="pb-2 text-sm font-medium">
+        Dashboard
+      </button>
+      <button type="button" @click="tab = 'holdings'"
+              :class="tab === 'holdings' ? 'border-b-2 border-emerald-700 text-emerald-800' : 'text-slate-500 hover:text-slate-800'"
+              class="pb-2 text-sm font-medium">
+        Holdings
+      </button>
+      <button type="button" @click="tab = 'tax'"
+              :class="tab === 'tax' ? 'border-b-2 border-emerald-700 text-emerald-800' : 'text-slate-500 hover:text-slate-800'"
+              class="pb-2 text-sm font-medium">
+        Tax
+      </button>
     </div>
-    {% endif %}
-    {% if summary.instruments_with_missing_history %}
-    <div class="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-      <strong>Buy history incomplete</strong> for {{ summary.instruments_with_missing_history }}
-      instrument{{ summary.instruments_with_missing_history|pluralize }}: a sell was larger than
-      the visible purchase history. Upload an earlier tradebook window, or note that
-      realised P&amp;L / XIRR for those rows treats the shortfall as zero-cost.
-    </div>
-    {% endif %}
 
-    {% if fy_rows %}
-    <details class="rounded-lg border border-slate-200 bg-white">
-      <summary class="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-        Realised P&amp;L by Financial Year
-        <span class="text-xs font-normal text-slate-400 ml-2">({{ fy_rows|length }} FY{{ fy_rows|length|pluralize:"s" }})</span>
-      </summary>
-      <div class="px-4 pb-4">
-        <table class="w-full text-sm">
-          <thead class="text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th class="text-left py-1">FY (Apr–Mar)</th>
-              <th class="text-right py-1">LTCG (&gt; 365 days)</th>
-              <th class="text-right py-1">STCG</th>
-              <th class="text-right py-1">Total</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            {% for r in fy_rows %}
-              <tr>
-                <td class="py-1 font-medium">{{ r.fy }}</td>
-                <td class="py-1 text-right tabular-nums {% if r.ltcg >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.ltcg|floatformat:0|intcomma }}</td>
-                <td class="py-1 text-right tabular-nums {% if r.stcg >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.stcg|floatformat:0|intcomma }}</td>
-                <td class="py-1 text-right tabular-nums font-semibold {% if r.total >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.total|floatformat:0|intcomma }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <!-- Dashboard tab -->
+    <div x-show="tab === 'dashboard'" x-cloak class="space-y-6">
+
+      <!-- Segment toggle -->
+      <div class="flex items-center justify-between gap-3">
+        <p class="text-xs text-slate-500">Cumulative across all demat accounts. Use the Holdings tab to slice.</p>
+        <div class="inline-flex rounded-md border border-slate-200 bg-white p-0.5 text-xs">
+          <button type="button" @click="seg = 'all'"
+                  :class="seg === 'all' ? 'bg-emerald-700 text-white' : 'text-slate-600 hover:bg-slate-50'"
+                  class="rounded px-3 py-1 font-medium">All</button>
+          <button type="button" @click="seg = 'eq'"
+                  :class="seg === 'eq' ? 'bg-emerald-700 text-white' : 'text-slate-600 hover:bg-slate-50'"
+                  class="rounded px-3 py-1 font-medium">Equity</button>
+          <button type="button" @click="seg = 'mf'"
+                  :class="seg === 'mf' ? 'bg-emerald-700 text-white' : 'text-slate-600 hover:bg-slate-50'"
+                  class="rounded px-3 py-1 font-medium">MF</button>
+        </div>
       </div>
-    </details>
-    {% endif %}
+
+      <div x-show="seg === 'all'" class="space-y-6">
+        {% include "wealth/investments/_kpi_block.html" with block=dashboard_all base_currency=base_currency %}
+      </div>
+      <div x-show="seg === 'eq'" x-cloak class="space-y-6">
+        {% include "wealth/investments/_kpi_block.html" with block=dashboard_eq base_currency=base_currency %}
+      </div>
+      <div x-show="seg === 'mf'" x-cloak class="space-y-6">
+        {% include "wealth/investments/_kpi_block.html" with block=dashboard_mf base_currency=base_currency %}
+      </div>
+
+    </div><!-- /Dashboard tab -->
+
+    <!-- Tax tab -->
+    <div x-show="tab === 'tax'" x-cloak class="space-y-6">
+      {% if dashboard_fy_rows %}
+        <div class="rounded-lg border border-slate-200 bg-white">
+          <div class="px-4 py-3 border-b border-slate-100">
+            <h2 class="text-sm font-semibold text-slate-700">Realised P&amp;L by Financial Year</h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Indian FY (Apr–Mar) · cumulative across all accounts &amp; segments
+              {% if dashboard_pan_fy_groups %} · split by PAN ({{ dashboard_pan_fy_groups|length }}){% endif %}
+            </p>
+          </div>
+          <div class="px-4 py-4 space-y-6">
+            {% if dashboard_pan_fy_groups %}
+              {% for grp in dashboard_pan_fy_groups %}
+                <div>
+                  <h3 class="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
+                    {{ grp.display_name }}
+                    {% if grp.pan %}<span class="text-slate-400 font-normal">· PAN {{ grp.pan }}</span>{% endif %}
+                  </h3>
+                  <table class="w-full text-sm">
+                    <thead class="text-xs uppercase tracking-wide text-slate-500">
+                      <tr>
+                        <th class="text-left py-1">FY (Apr–Mar)</th>
+                        <th class="text-right py-1">LTCG (&gt; 365 days)</th>
+                        <th class="text-right py-1">STCG</th>
+                        <th class="text-right py-1">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      {% for r in grp.rows %}
+                        <tr>
+                          <td class="py-1 font-medium">{{ r.fy }}</td>
+                          <td class="py-1 text-right tabular-nums {% if r.ltcg >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.ltcg|floatformat:0|intcomma }}</td>
+                          <td class="py-1 text-right tabular-nums {% if r.stcg >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.stcg|floatformat:0|intcomma }}</td>
+                          <td class="py-1 text-right tabular-nums font-semibold {% if r.total >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.total|floatformat:0|intcomma }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endfor %}
+            {% else %}
+              <table class="w-full text-sm">
+                <thead class="text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th class="text-left py-1">FY (Apr–Mar)</th>
+                    <th class="text-right py-1">LTCG (&gt; 365 days)</th>
+                    <th class="text-right py-1">STCG</th>
+                    <th class="text-right py-1">Total</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  {% for r in dashboard_fy_rows %}
+                    <tr>
+                      <td class="py-1 font-medium">{{ r.fy }}</td>
+                      <td class="py-1 text-right tabular-nums {% if r.ltcg >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.ltcg|floatformat:0|intcomma }}</td>
+                      <td class="py-1 text-right tabular-nums {% if r.stcg >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.stcg|floatformat:0|intcomma }}</td>
+                      <td class="py-1 text-right tabular-nums font-semibold {% if r.total >= 0 %}text-emerald-700{% else %}text-rose-700{% endif %}">{{ r.total|floatformat:0|intcomma }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="rounded-lg border border-slate-200 bg-white p-10 text-center text-slate-500">
+          <p class="text-sm">No realised P&amp;L yet — no closed lots in any financial year.</p>
+        </div>
+      {% endif %}
+    </div><!-- /Tax tab -->
+
+    <!-- Holdings tab -->
+    <div x-show="tab === 'holdings'" x-cloak class="space-y-6">
 
     <!-- Filter bar -->
     <form method="get" class="flex flex-wrap items-end gap-2 text-sm">
@@ -265,6 +276,9 @@
         </tbody>
       </table>
     </div>
+
+    </div><!-- /Holdings tab -->
+  </div><!-- /Alpine x-data -->
   {% endif %}
 </div>
 {% endblock %}

@@ -203,6 +203,70 @@ def test_investments_list_shows_realised_by_fy_section(seeded):
 
 
 @pytest.mark.django_db
+def test_investments_list_renders_pan_grouped_fy_section(seeded):
+    """When two demats are tagged with different PANs, the FY panel splits per PAN."""
+    profile = seeded["profile"]
+    instr = seeded["instrument"]
+
+    # Tag the seeded zerodha account as Self.
+    seeded["broker"].pan = "ABCDE1234F"
+    seeded["broker"].pan_holder_name = "Self"
+    seeded["broker"].save()
+
+    # Add a second demat under Mom's PAN with its own round-trip.
+    mom_ba = BrokerAccount.objects.create(
+        profile=profile,
+        broker_key=BrokerKind.ZERODHA,
+        account_label="Mom",
+        client_code="DIY704",
+        pan="FGHIJ5678K",
+        pan_holder_name="Mom",
+    )
+    StockTrade.objects.create(
+        profile=profile,
+        broker_account=mom_ba,
+        instrument=instr,
+        trade_date=date(2022, 1, 1),
+        side=TradeSide.BUY,
+        quantity=Decimal("10"),
+        price=Decimal("1000"),
+        net_amount=Decimal("-10000"),
+        trade_ref="mom-buy-1",
+    )
+    StockTrade.objects.create(
+        profile=profile,
+        broker_account=mom_ba,
+        instrument=instr,
+        trade_date=date(2023, 4, 15),  # > 365 days -> LTCG, FY23-24
+        side=TradeSide.SELL,
+        quantity=Decimal("5"),
+        price=Decimal("1200"),
+        net_amount=Decimal("6000"),
+        trade_ref="mom-sell-1",
+    )
+
+    resp = Client().get(reverse("investments_list"))
+    body = resp.content.decode("utf-8")
+    assert "Realised P&amp;L by Financial Year" in body
+    # Per-PAN headings render
+    assert "Self" in body
+    assert "Mom" in body
+    assert "ABCDE1234F" in body
+    assert "FGHIJ5678K" in body
+    # Per-PAN tables are the only tables — no combined totals.
+    assert "All PANs combined" not in body
+
+    # Holdings-tab filters (broker, kind, include_old) must not change the
+    # Dashboard. The per-PAN FY split lives on the Dashboard and is always
+    # cumulative across all accounts and segments.
+    resp_filtered = Client().get(reverse("investments_list") + f"?broker={mom_ba.id}")
+    body_filtered = resp_filtered.content.decode("utf-8")
+    assert "FGHIJ5678K" in body_filtered
+    assert "ABCDE1234F" in body_filtered
+    assert "All PANs combined" not in body_filtered
+
+
+@pytest.mark.django_db
 def test_instrument_detail_no_trade_ref_or_cagr(seeded):
     instr = seeded["instrument"]
     resp = Client().get(reverse("instrument_detail", args=[instr.id]))
@@ -253,7 +317,7 @@ def test_instrument_detail_no_cashflow_markers_or_source_column(seeded):
     body = resp.content.decode("utf-8")
     assert "cashflowData" not in body
     # Dividend source column removed; provenance moved to row-level title tooltip
-    assert "<th class=\"text-left py-1\">Source</th>" not in body
+    assert '<th class="text-left py-1">Source</th>' not in body
 
 
 @pytest.mark.django_db

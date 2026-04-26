@@ -7,57 +7,6 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "app"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "argon2-cffi" },
-    { name = "crispy-tailwind" },
-    { name = "croniter" },
-    { name = "django" },
-    { name = "django-crispy-forms" },
-    { name = "django-environ" },
-    { name = "django-htmx" },
-    { name = "django-q2" },
-    { name = "openpyxl" },
-    { name = "pdfplumber" },
-    { name = "psycopg", extra = ["binary"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "factory-boy" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-django" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "argon2-cffi", specifier = ">=25.1.0" },
-    { name = "crispy-tailwind", specifier = ">=1.0.3" },
-    { name = "croniter", specifier = ">=2.0.5" },
-    { name = "django", specifier = ">=6.0.4" },
-    { name = "django-crispy-forms", specifier = ">=2.6" },
-    { name = "django-environ", specifier = ">=0.13.0" },
-    { name = "django-htmx", specifier = ">=1.27.0" },
-    { name = "django-q2", specifier = ">=1.9.0" },
-    { name = "openpyxl", specifier = ">=3.1.5" },
-    { name = "pdfplumber", specifier = ">=0.11.5" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "factory-boy", specifier = ">=3.3.3" },
-    { name = "pytest", specifier = ">=9.0.3" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
-    { name = "pytest-django", specifier = ">=4.12.0" },
-    { name = "ruff", specifier = ">=0.15.11" },
-]
-
-[[package]]
 name = "argon2-cffi"
 version = "25.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -571,6 +520,57 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/38/37/9ca3519e92a8434eb93be570b131476cc0a4e840bb39c62ddb7813a39d53/pdfplumber-0.11.9.tar.gz", hash = "sha256:481224b678b2bbdbf376e2c39bf914144eef7c3d301b4a28eebf0f7f6109d6dc", size = 102768, upload-time = "2026-01-05T08:10:29.072Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/c8/cdbc975f5b634e249cfa6597e37c50f3078412474f21c015e508bfbfe3c3/pdfplumber-0.11.9-py3-none-any.whl", hash = "sha256:33ec5580959ba524e9100138746e090879504c42955df1b8a997604dd326c443", size = 60045, upload-time = "2026-01-05T08:10:27.512Z" },
+]
+
+[[package]]
+name = "personal-finance-tracker"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "argon2-cffi" },
+    { name = "crispy-tailwind" },
+    { name = "croniter" },
+    { name = "django" },
+    { name = "django-crispy-forms" },
+    { name = "django-environ" },
+    { name = "django-htmx" },
+    { name = "django-q2" },
+    { name = "openpyxl" },
+    { name = "pdfplumber" },
+    { name = "psycopg", extra = ["binary"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "factory-boy" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-django" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "argon2-cffi", specifier = ">=25.1.0" },
+    { name = "crispy-tailwind", specifier = ">=1.0.3" },
+    { name = "croniter", specifier = ">=2.0.5" },
+    { name = "django", specifier = ">=6.0.4" },
+    { name = "django-crispy-forms", specifier = ">=2.6" },
+    { name = "django-environ", specifier = ">=0.13.0" },
+    { name = "django-htmx", specifier = ">=1.27.0" },
+    { name = "django-q2", specifier = ">=1.9.0" },
+    { name = "openpyxl", specifier = ">=3.1.5" },
+    { name = "pdfplumber", specifier = ">=0.11.5" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "factory-boy", specifier = ">=3.3.3" },
+    { name = "pytest", specifier = ">=9.0.3" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "pytest-django", specifier = ">=4.12.0" },
+    { name = "ruff", specifier = ">=0.15.11" },
 ]
 
 [[package]]

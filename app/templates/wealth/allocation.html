@@ -10,7 +10,6 @@
     <p class="text-slate-500 mt-1">Asset allocation &amp; rebalancing · Base: {{ base_currency }}</p>
   </header>
 
-  {% include "wealth/_tabs.html" with active="allocation" %}
   {% include "wealth/_messages.html" %}
 
   {% if not allocation.rows %}

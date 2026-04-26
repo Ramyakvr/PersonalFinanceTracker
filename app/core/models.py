@@ -469,6 +469,18 @@ class BrokerAccount(models.Model):
     )
     client_code = models.CharField(max_length=40, blank=True, default="")
     base_currency = models.CharField(max_length=3, default="INR")
+    pan = models.CharField(
+        max_length=10,
+        blank=True,
+        default="",
+        help_text="Indian PAN of the account holder. Used to group FY-wise capital gains for ITR filing.",
+    )
+    pan_holder_name = models.CharField(
+        max_length=80,
+        blank=True,
+        default="",
+        help_text="Friendly label for the PAN holder (e.g. 'Self', 'Mom').",
+    )
     notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -483,6 +495,10 @@ class BrokerAccount(models.Model):
 
     def __str__(self) -> str:
         return f"{self.get_broker_key_display()} / {self.account_label}"
+
+    @property
+    def pan_display(self) -> str:
+        return self.pan_holder_name or self.pan or "Unassigned"
 
 
 class InstrumentKind(models.TextChoices):

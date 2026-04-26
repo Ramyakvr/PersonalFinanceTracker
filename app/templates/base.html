@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Personal Finance{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/tailwind.out.css' %}">
+  <style>[x-cloak]{display:none!important}</style>
   <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
   <script defer src="https://unpkg.com/alpinejs@3.14.3/dist/cdn.min.js"></script>
 </head>
@@ -20,10 +21,37 @@
              class="rounded-md px-3 py-2 {% if current == '/' %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
             Overview
           </a>
-          <a href="{% url 'asset_list' %}"
-             class="rounded-md px-3 py-2 {% if '/wealth/' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
-            Wealth
-          </a>
+          <div x-data="{ open: {% if '/wealth/' in current %}true{% else %}false{% endif %} }">
+            <button type="button" @click="open = !open"
+                    class="w-full flex items-center justify-between rounded-md px-3 py-2 text-slate-700 hover:bg-slate-100">
+              <span>Wealth</span>
+              <svg class="h-3 w-3 text-slate-400 transition-transform" :class="open ? 'rotate-90' : ''" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd"/>
+              </svg>
+            </button>
+            <div x-show="open" x-cloak class="ml-5 flex flex-col">
+              <a href="{% url 'asset_list' %}"
+                 class="rounded-md px-2 py-1 text-[12px] {% if '/wealth/assets' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                Assets
+              </a>
+              <a href="{% url 'liability_list' %}"
+                 class="rounded-md px-2 py-1 text-[12px] {% if '/wealth/liabilities' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                Liabilities
+              </a>
+              <a href="{% url 'investments_list' %}"
+                 class="rounded-md px-2 py-1 text-[12px] {% if '/wealth/investments' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                Investments
+              </a>
+              <a href="{% url 'snapshots' %}"
+                 class="rounded-md px-2 py-1 text-[12px] {% if '/wealth/snapshots' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                Net Worth
+              </a>
+              <a href="{% url 'allocation' %}"
+                 class="rounded-md px-2 py-1 text-[12px] {% if '/wealth/allocation' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                Allocation
+              </a>
+            </div>
+          </div>
           <a href="{% url 'transaction_list' 'expenses' %}"
              class="rounded-md px-3 py-2 {% if '/money/' in current %}bg-emerald-50 text-emerald-800 font-semibold{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
             Money

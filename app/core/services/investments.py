@@ -107,9 +107,7 @@ def _convert(
 
 
 def _trades_qs(profile: Profile, *, instrument=None, broker_account=None, kind=None):
-    qs = StockTrade.objects.filter(profile=profile).select_related(
-        "broker_account", "instrument"
-    )
+    qs = StockTrade.objects.filter(profile=profile).select_related("broker_account", "instrument")
     if instrument is not None:
         qs = qs.filter(instrument=instrument)
     if broker_account is not None:
@@ -255,7 +253,6 @@ def portfolio_xirr(
     books = build_lots(
         _stock_trades_as_lot_input(trades),
         _corporate_actions_as_lot_input(profile),
-    
         strict=False,
     )
     mv, _priced = _terminal_flow(books.values(), as_of, base_ccy, user, price_lookup, errors)
@@ -281,9 +278,7 @@ def instrument_xirr(
     errors: list[str] = []
 
     trades = list(_trades_qs(profile, instrument=instrument, broker_account=broker_account))
-    dividends = list(
-        _dividends_qs(profile, instrument=instrument, broker_account=broker_account)
-    )
+    dividends = list(_dividends_qs(profile, instrument=instrument, broker_account=broker_account))
     if not trades:
         return None
 
@@ -293,7 +288,6 @@ def instrument_xirr(
     books = build_lots(
         _stock_trades_as_lot_input(trades),
         _corporate_actions_as_lot_input(profile, instrument=instrument),
-    
         strict=False,
     )
     mv, _ = _terminal_flow(books.values(), as_of, base_ccy, user, price_lookup, errors)
@@ -320,16 +314,13 @@ def instrument_breakdown(
     br = InstrumentBreakdown(instrument_id=instrument.id, instrument_name=instrument.name)
 
     trades = list(_trades_qs(profile, instrument=instrument, broker_account=broker_account))
-    dividends = list(
-        _dividends_qs(profile, instrument=instrument, broker_account=broker_account)
-    )
+    dividends = list(_dividends_qs(profile, instrument=instrument, broker_account=broker_account))
     if not trades and not dividends:
         return br
 
     books = build_lots(
         _stock_trades_as_lot_input(trades),
         _corporate_actions_as_lot_input(profile, instrument=instrument),
-    
         strict=False,
     )
 
@@ -420,7 +411,6 @@ def portfolio_summary(
     books = build_lots(
         _stock_trades_as_lot_input(trades),
         _corporate_actions_as_lot_input(profile),
-
         strict=False,
     )
     mv, _ = _terminal_flow(books.values(), as_of, base_ccy, user, price_lookup, errors)
@@ -440,9 +430,7 @@ def portfolio_summary(
         if raw is None:
             inst_price_cache[inst_id] = None
             return None
-        converted = _convert(
-            raw, instrument.currency, base_ccy, user, errors, f"price#{inst_id}"
-        )
+        converted = _convert(raw, instrument.currency, base_ccy, user, errors, f"price#{inst_id}")
         inst_price_cache[inst_id] = converted
         return converted
 
@@ -547,6 +535,74 @@ def realised_by_fy(
             else:
                 row.stcg += r.realised_pnl
     return sorted(buckets.values(), key=lambda x: x.fy)
+
+
+@dataclass
+class PanFyGroup:
+    """FY-wise realised P&L for one PAN (one tax filer).
+
+    A profile with demat accounts under multiple PANs files multiple ITRs —
+    each PAN's gains must be reported separately. ``rows`` is the same shape
+    as the flat ``realised_by_fy`` output, restricted to the broker accounts
+    sharing this PAN.
+    """
+
+    pan: str  # "" when the user hasn't tagged the account yet
+    holder_name: str  # "" when no friendly label is set
+    rows: list[FyRealised]
+
+    @property
+    def display_name(self) -> str:
+        return self.holder_name or self.pan or "Unassigned"
+
+
+def realised_by_fy_by_pan(
+    profile: Profile,
+    *,
+    kind: str | None = None,
+) -> tuple[list[PanFyGroup], list[FyRealised]]:
+    """Split realised P&L by PAN, then by FY. Also return the across-PAN totals.
+
+    Iterates the profile's broker accounts, calls :func:`realised_by_fy` per
+    account, and merges by ``(pan, pan_holder_name)``. The second tuple value
+    is the same data re-aggregated across all PANs — identical to a no-PAN
+    ``realised_by_fy(profile, kind=kind)`` call, kept here so the caller can
+    render a single "All accounts" totals table without recomputing lots.
+
+    Groups are ordered by display name; FY rows within each group ascend.
+    Empty groups (broker accounts with no realised gains yet) are dropped.
+    """
+
+    from core.models import BrokerAccount
+
+    by_key: dict[tuple[str, str], dict[str, FyRealised]] = {}
+    total: dict[str, FyRealised] = {}
+
+    for ba in BrokerAccount.objects.filter(profile=profile).order_by("id"):
+        rows = realised_by_fy(profile, broker_account=ba, kind=kind)
+        if not rows:
+            continue
+        key = (ba.pan or "", ba.pan_holder_name or "")
+        bucket = by_key.setdefault(key, {})
+        for r in rows:
+            existing = bucket.setdefault(r.fy, FyRealised(fy=r.fy))
+            existing.ltcg += r.ltcg
+            existing.stcg += r.stcg
+            t = total.setdefault(r.fy, FyRealised(fy=r.fy))
+            t.ltcg += r.ltcg
+            t.stcg += r.stcg
+
+    groups = [
+        PanFyGroup(
+            pan=pan,
+            holder_name=holder_name,
+            rows=sorted(bucket.values(), key=lambda x: x.fy),
+        )
+        for (pan, holder_name), bucket in by_key.items()
+    ]
+    groups.sort(key=lambda g: (g.display_name == "Unassigned", g.display_name.lower()))
+    totals = sorted(total.values(), key=lambda x: x.fy)
+    return groups, totals
 
 
 # ---------------------------------------------------------------------------
