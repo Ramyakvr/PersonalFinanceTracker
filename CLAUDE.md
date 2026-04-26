@@ -8,10 +8,8 @@ A **local-first personal finance tracker** for a single user (India-first, multi
 
 ## Canonical docs (read first, every session)
 
-- `SPEC.md` — the buildable product spec. Prioritized MVP/v2/v3 lists, schema, screen-by-screen breakdown, user flows, risks.
+- `SPEC.md` — the product spec. MVP scope (shipped) plus v2/v3 ideas, user flows, risks.
 - `DECISIONS.md` — the locked stack contract and rationale for each non-obvious choice.
-- `screenshots/index.html` — hand-built HTML wireframes for every major screen, sharing one stylesheet. Visual reference for layout, field names, and interaction affordances. Open it in a browser.
-- `screenshots/00-sitemap.svg` — IA diagram.
 
 ## Tech stack
 

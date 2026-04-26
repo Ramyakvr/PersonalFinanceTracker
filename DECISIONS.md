@@ -8,8 +8,8 @@
 |---|---|---|
 | Language | Python 3.12 | User's primary comfort language. |
 | Web framework | Django 6.0 (latest stable as of scaffold) | Batteries-included: ORM, migrations, forms, free admin panel for CRUD debugging, best fit for a 15-screen CRUD app. |
-| Frontend interactivity | HTMX 2 + Alpine.js 3 | Server-rendered HTML with partial swaps. No JS build step needed for any wireframe in `screenshots/`. |
-| Styling | Tailwind CSS 3 via standalone CLI | Same utility-class vocabulary as `screenshots/_shell.css`. No Node required — the standalone binary does JIT. |
+| Frontend interactivity | HTMX 2 + Alpine.js 3 | Server-rendered HTML with partial swaps. No JS build step. |
+| Styling | Tailwind CSS 3 via standalone CLI | Utility-class styling without a Node toolchain — the standalone binary does JIT. |
 | Database | PostgreSQL 14+ (localhost) | Native `JSONB` for `breakdownJson` / `percentByClass` / `templateJson`. Exact `NUMERIC(20,4)` for money. User already has 14.18 via Homebrew. |
 | ORM | Django ORM | Schema in `SPEC.md §4` maps 1:1. |
 | Charts | Chart.js 4 via CDN | Covers every viz the dashboard needs (donut, line, bar). No build step. |

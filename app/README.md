@@ -74,5 +74,4 @@ app/
 
 ## Phase status
 
-- **Phase 0** (this scaffold) — complete.
-- Phase 1+ tracked in the root `CLAUDE.md` under "Build phases (MVP)".
+Phases 0–6 are complete (MVP + investments). Phase 7 (polish: dark mode, hide-values toggle, Cmd-K search, PWA, scheduled backups, one Playwright E2E) is next. See the root `CLAUDE.md` for the live status.
